@@ -69,6 +69,7 @@ def on_message(mosq, obj, msg):
                 Timer(6,task_laugh,()).start()
                 Timer(8,task_turnHeadBack,()).start()
                 Timer(9,task_ledsOff,()).start()
+                Timer(12,task_notBusy,()).start()
 
 client = paho.Client("halloween_broker")
 client.connect(args.server)
