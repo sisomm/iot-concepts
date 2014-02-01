@@ -13,20 +13,19 @@ parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1],  default=0,
                     help="increase output verbosity")
 args = parser.parse_args()
 
-arduino = serial.Serial(args.port, 57600, timeout=1)
+arduino = serial.Serial(args.port, 57600, timeout=0.1)
 mypid = os.getpid()
 client = paho.Client("arduino_dispatch_"+str(mypid))
 
 connect_time=time.time()
 
 def arduino_loop():
-	while true:
+	while True:
 		now=time.time()
 		connected=int(now-connect_time)
 		print(connected)
 		print('reading Arduiono')
 		response = arduino.readline()
-		time.sleep(.010)  
 		if(len(response)>0):
 			if(args.verbosity>0):
 				print("Arduino says:"+response.strip())
@@ -42,6 +41,7 @@ def on_message(mosq, obj, msg):
 
     if(args.verbosity>0):
         print("sending to Arduino: "+arduinoCommand)
+    time.sleep(.20)  
     arduino.write(arduinoCommand)
 
 def connectall():
