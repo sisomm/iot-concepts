@@ -33,7 +33,7 @@ try:
         if(len(response)>0):
             if(args.verbosity>0):
                 print("Arduino says:"+response.strip())
-            client.publish("/arduino/2/status",response.strip() ,1)
+            client.publish("/arduino/2/sonar",response.strip() ,1)
 #        time.sleep(0.1)
 except KeyboardInterrupt:
     arduino.close()

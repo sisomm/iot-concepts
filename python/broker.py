@@ -75,7 +75,7 @@ client = paho.Client("halloween_broker")
 client.connect(args.server)
 connect_time=time.time()
 client.on_message = on_message
-client.subscribe('/arduino/2/status', 2)
+client.subscribe('/arduino/2/sonar', 2)
 client.subscribe('/raspberry/1/incoming',2)
 
 pygame.mixer.init()
@@ -88,7 +88,7 @@ try:
         client.loop(300)
 
 except KeyboardInterrupt:
-    client.unsubscribe("/arduino/2/status")
+    client.unsubscribe("/arduino/2/sonar")
     client.unsubscribe("/raspberry/1/incoming")
     client.disconnect()
 
