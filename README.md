@@ -1,4 +1,4 @@
-iot-test
+iot-concepts
 ========
 
 test various aspects of internet of things using MQTT, Arduino, Raspi, etc. Also my first git repository.
