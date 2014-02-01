@@ -1,7 +1,7 @@
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 # (c) Simen Sommerfeldt, @sisomm, simen.sommerfeldt@gmail.com Licensed as CC-BY-SA
 import serial, time
-
+import os
 import argparse
 import paho.mqtt.client as paho
 
@@ -13,7 +13,8 @@ parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1],  default=0,
 args = parser.parse_args()
 
 arduino = serial.Serial(args.port, 57600, timeout=1)
-client = paho.Client("arduino_dispatch")
+mypid = os.getpid()
+client = paho.Client("arduino_dispatch_"+str(mypid))
 
 connect_time=time.time()
 
@@ -53,7 +54,7 @@ connectall()
 #arduino.write('SERVO, 1, 73')
 
 try:
-    while True:
+    while client.loop()==0:
         print('reading MQTT')
         client.loop()
         now=time.time()
@@ -65,6 +66,16 @@ try:
             if(args.verbosity>0):
                 print("Arduino says:"+response.strip())
             client.publish("/arduino/1/status",response.strip() ,0)
+
+except IndexError:
+    print "No data received within serial timeout period"
+    disconnectall()
+
 except KeyboardInterrupt:
+    print "Interrupt received"
+    disconnectall()
+
+except RuntimError:
+    print "uh-oh! time to die"
     disconnectall()
 
