@@ -25,8 +25,6 @@ You need an MQTT broker (I use mosquitto) and install the library for it on the 
 
 I plan on documenting the whole thing in a blogpost. URL will be given here.
 
-To test this, you need to position two levers attached to redstone lamps side by side in Minecraft, and not their positions. The positions are used to determine wich LED shall be ccontrolled. So you must edit the source accordingly
-
 I use this repository to keep files in sync between the raspi and the mac. If you want to copy it: 
 	Know that this is very much work in progress! 
 
