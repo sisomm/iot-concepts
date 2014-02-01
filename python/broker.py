@@ -16,15 +16,15 @@ args = parser.parse_args()
 isBusy=False        # To make sure we only have one head movement active
 
 def task_laugh():
-    pygame.mixer.music.load("/home/pi/mqtt/iot-test/sounds/witchlaugh.wav")
+    pygame.mixer.music.load("../sounds/witchlaugh.wav")
     pygame.mixer.music.play()
    
 def task_goodbye():
-    pygame.mixer.music.load("/home/pi/mqtt/iot-test/sounds/despicable.wav")
+    pygame.mixer.music.load("../sounds/despicable.wav")
     pygame.mixer.music.play()
 
 def task_hello():
-    pygame.mixer.music.load("/home/pi/mqtt/iot-test/sounds/mday.wav")
+    pygame.mixer.music.load("../sounds/mday.wav")
     pygame.mixer.music.play()
 
 def task_ledsOff():
