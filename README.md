@@ -16,7 +16,10 @@ Everything is (c) Simen Sommerfeldt licensed under CC-BY-SA (Creative commons by
 
 Right now, it controls the power of two LED's using MQTT to send the status of levers to a Python script/arduino.
 
-And makes a skull move and laugh viciously if one passes a sonar with less than 40 cm. [Video](http://www.youtube.com/watch?v=2eRPg_KQunU)  
+What it does:
+* Makes a skull move and laugh viciously if one passes a sonar with less than 40 cm. [Video](http://www.youtube.com/watch?v=2eRPg_KQunU)   
+* Has the skull follow player movements and light eyes in Minecraft: [Video](http://www.youtube.com/watch?v=yu6P1Bz6P0c)
+
 
 You need an MQTT broker (I use mosquitto) and install the library for it on the computer which is attached to the Arduino. I use a mac to run minecraft, and a RasPi to run the mosquitto broker and control the Arduino.
 
@@ -26,4 +29,6 @@ To test this, you need to position two levers attached to redstone lamps side by
 
 I use this repository to keep files in sync between the raspi and the mac. If you want to copy it: 
 	Know that this is very much work in progress! 
+
+
 
