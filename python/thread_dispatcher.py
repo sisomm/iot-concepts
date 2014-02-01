@@ -20,16 +20,17 @@ client = paho.Client("arduino_dispatch_"+str(mypid))
 connect_time=time.time()
 
 def arduino_loop():
-	now=time.time()
-	connected=int(now-connect_time)
-	print(connected)
-	print('reading Arduiono')
-	response = arduino.readline()
-	time.sleep(.010)  
-	if(len(response)>0):
-		if(args.verbosity>0):
-			print("Arduino says:"+response.strip())
-		client.publish("/arduino/1/status",response.strip() ,0)
+	while true:
+		now=time.time()
+		connected=int(now-connect_time)
+		print(connected)
+		print('reading Arduiono')
+		response = arduino.readline()
+		time.sleep(.010)  
+		if(len(response)>0):
+			if(args.verbosity>0):
+				print("Arduino says:"+response.strip())
+			client.publish("/arduino/1/status",response.strip() ,0)
 
 
 def on_message(mosq, obj, msg):
