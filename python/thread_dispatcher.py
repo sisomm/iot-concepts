@@ -2,6 +2,7 @@
 # (c) Simen Sommerfeldt, @sisomm, simen.sommerfeldt@gmail.com Licensed as CC-BY-SA
 import serial, time
 import os
+import thread
 import argparse
 import paho.mqtt.client as paho
 
@@ -17,6 +18,19 @@ mypid = os.getpid()
 client = paho.Client("arduino_dispatch_"+str(mypid))
 
 connect_time=time.time()
+
+def arduino_loop():
+	now=time.time()
+	connected=int(now-connect_time)
+	print(connected)
+	print('reading Arduiono')
+	response = arduino.readline()
+	time.sleep(.010)  
+	if(len(response)>0):
+		if(args.verbosity>0):
+			print("Arduino says:"+response.strip())
+		client.publish("/arduino/1/status",response.strip() ,0)
+
 
 def on_message(mosq, obj, msg):
     #called when we get an MQTT message that we subscribe to
@@ -54,18 +68,14 @@ connectall()
 #arduino.write('SERVO, 1, 73')
 
 try:
+    thread.start_new_thread( arduino_loop, () )
+except:
+    Print('Unable to start thread.')
+
+try:
     while client.loop()==0:
-        print('reading MQTT')
-        client.loop()
-        now=time.time()
-        connected=int(now-connect_time)
-        print(connected)
-        print('reading Arduiono')
-        response = arduino.readline()
-        if(len(response)>0):
-            if(args.verbosity>0):
-                print("Arduino says:"+response.strip())
-            client.publish("/arduino/1/status",response.strip() ,0)
+    	pass
+    	
 
 except IndexError:
     print "No data received within serial timeout period"

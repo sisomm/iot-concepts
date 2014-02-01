@@ -56,7 +56,6 @@ connectall()
 try:
     while client.loop()==0:
         print('reading MQTT')
-        client.loop()
         now=time.time()
         connected=int(now-connect_time)
         print(connected)
