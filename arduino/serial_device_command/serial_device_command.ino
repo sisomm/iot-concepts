@@ -2,7 +2,7 @@
 
 #include <Servo.h>
 
-const int bSize = 30; // Command Buffer size
+const int bSize = 40; // Command Buffer size
 
 const int ledPin0 = 12;
 const int ledPin1 = 13;
@@ -25,7 +25,7 @@ String arg3;
 
 
 char buffer[bSize];  // Serial buffer
-char command[10];    // Arbitrary Value for command size
+char command[15];    // Arbitrary Value for command size
 char data1[15];      // ditto for data size
 char data2[15];
 char data3[15];
@@ -147,13 +147,13 @@ void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new p
       int increment1=(servo1To>lastServo1Pos?+2:-2);
 
       int repetitions=max(abs(servo0To-lastServo0Pos),abs(servo1To-lastServo1Pos))/2;  // We move servos two steps at a time
-      
+      Serial.println(repetitions);
       for(int i=0;i<repetitions;i++){
-        if(abs(servo0To-lastServo0Pos)>0){            // Stop moving the servo that has reached the position
+        if(abs(servo0To-lastServo0Pos)>2){            // Stop moving the servo that has reached the position
           servo0.write(lastServo0Pos+=increment0);
         }
-        if(abs(servo0To-lastServo0Pos)>0){
-          servo1.write(lastServo1Pos+=increment0);        
+        if(abs(servo1To-lastServo1Pos)>2){
+          servo1.write(lastServo1Pos+=increment1);        
         }
         delay(20);    // Allow the move to complete
       }
@@ -168,6 +168,7 @@ void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new p
 void loop() {
 
   SerialParser();
+
   if (byteCount  > 0) {
     if(theCommand.equalsIgnoreCase("LEDS_ON")){
       digitalWrite(ledPin0,HIGH); 
