@@ -9,7 +9,7 @@ import paho.mqtt.client as paho
 parser = argparse.ArgumentParser()
 parser.add_argument("-p","--port", help="The port where the Arduino is attached")
 parser.add_argument("-s","--server", default="127.0.0.1", help="The IP address of the MQTT server")
-parser.add_argument("-t","--topic ", default="", help="The topic name to report to")
+parser.add_argument("-t","--topic", default="", help="The topic name to report to")
 parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1],  default=0,
                     help="increase output verbosity")
 args = parser.parse_args()
