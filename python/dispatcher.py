@@ -21,16 +21,16 @@ connect_time=time.time()
 def on_message(mosq, obj, msg):
     #called when we get an MQTT message that we subscribe to
     if(args.verbosity>0):
-        print("Message received on topic "+msg.topic+" with payload "+msg.payload)
+        print("DISPATCHER: Message received on topic "+msg.topic+" with payload "+msg.payload)
 
         arduinoCommand=msg.payload
 
     if(args.verbosity>0):
-        print("sending to Arduino: "+arduinoCommand)
+        print("DISPATCHER: sending to Arduino: "+arduinoCommand)
     arduino.write(arduinoCommand)
 
 def connectall():
-    print("Connecting")
+    print("DISPATCHER: Connecting")
     arduino.open()
     client.connect(args.server)
     client.subscribe("/arduino/1/incoming", 2)
@@ -38,7 +38,7 @@ def connectall():
     client.on_message = on_message
 
 def disconnectall():
-    print("Disconnecting")
+    print("DISPATCHER: Disconnecting")
     arduino.close()
     client.unsubscribe("/arduino/1/incoming")
     client.unsubscribe("/arduino/3/incoming")

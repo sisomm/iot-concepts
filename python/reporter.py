@@ -23,6 +23,7 @@ def on_message(mosq, obj, msg):
         print("Message received on topic "+msg.topic+" with payload "+msg.payload)
 
 
+print("REPORTER: Connecting")
 mypid = os.getpid()
 client = paho.Client("arduino_report_"+str(mypid))
 client.connect(args.server)
@@ -33,7 +34,7 @@ try:
         response = arduino.readline()
         if(len(response)>0):
             if(args.verbosity>0):
-                print("Arduino says:"+response.strip())
+                print("REPORTER: Arduino says:"+response.strip())
             client.publish(args.topic,response.strip() ,1)
 
 except KeyboardInterrupt:
