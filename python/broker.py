@@ -42,10 +42,10 @@ def task_ledsOn():
     client.publish('/arduino/1/incoming','LEDS_ON',2)
 
 def task_turnHead():
-    client.publish('/arduino/1/incoming','SERVO_SLOW, 1, 73, 170',2)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 50, 20',2)
 
 def task_turnHeadBack():
-    client.publish('/arduino/1/incoming','SERVO_SLOW, 1, 170, 73',2)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 50, 72',2)
 
 def task_notBusy():
     global isBusy
@@ -70,7 +70,7 @@ def on_message(mosq, obj, msg):
     if(msg.topic=='/arduino/2/sonar'):
         arguments=msg.payload.split(':');
         distance=int(arguments[1]);
-        if(distance<40):
+        if(distance!=0 and distance<40):
             if(isBusy): print('BROKER: Sorry bussy scaring!')
             else:
                 isBusy=True
