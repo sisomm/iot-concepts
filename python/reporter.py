@@ -23,7 +23,8 @@ def on_message(mosq, obj, msg):
         print("Message received on topic "+msg.topic+" with payload "+msg.payload)
 
 
-client = paho.Client("arduino_report")
+mypid = os.getpid()
+client = paho.Client("arduino_report_"+str(mypid))
 client.connect(args.server)
 client.on_message = on_message
 
