@@ -1,6 +1,6 @@
 var mqtt = require('sc-mqtt');  
 
-var client = mqtt.client('tcp://192.168.1.31:1883'); // local host is default. Otherwise use host, user/pwd
+var client = mqtt.client('tcp://192.168.1.36:1883'); // local host is default. Otherwise use host, user/pwd
 //var client = mqtt.client(); 
 client.connect();
 
@@ -8,7 +8,7 @@ var lastSeen=new Date(); // to remember the last seen time so that we only move 
 var isPresent = false;	 // is the player close to the skull?
 
 var players=server.onlinePlayers;
-//var lastLoc=  new org.bukkit.Location(players[0].world, 0, 0, 0); // TODO find out how to get an empty locaiton
+var lastLoc=  new org.bukkit.Location(players[0].world, 0, 0, 0); // TODO find out how to get an empty locaiton
 																  // Now we must have one player online
 var nearby=false;												  // is in front of skull
 
