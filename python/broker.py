@@ -16,24 +16,25 @@ args = parser.parse_args()
 isBusy=False        # To make sure we only have one head movement active
 
 def task_laugh():
-    print("LAUGH")
+    print("BROKER: LAUGH")
     pygame.mixer.music.load("../sounds/witchlaugh.wav")
     pygame.mixer.music.play()
    
 def task_goodbye():
-    print("GOODBYE")
+    print("BROKER: GOODBYE")
     pygame.mixer.music.load("../sounds/despicable.wav")
     pygame.mixer.music.play()
 
 def task_hello():
-    print("HELLO")
+    print("BROKER: HELLO")
     pygame.mixer.music.load("../sounds/mday.wav")
     pygame.mixer.music.play()
 
 def task_doh():
-    print("DOH!")
+    print("BROKER: DOH!")
     pygame.mixer.music.load("../sounds/doh.wav") 
     pygame.mixer.music.play()
+
 def task_ledsOff():
     client.publish('/arduino/1/incoming','LEDS_OFF',2)
 
@@ -53,7 +54,7 @@ def task_notBusy():
 def on_message(mosq, obj, msg):
     global isBusy
     if(msg.topic=='/raspberry/1/incoming'):
-        print("Message received on topic "+msg.topic+" with payload "+msg.payload)
+        print("BROKER: Message received on topic "+msg.topic+" with payload "+msg.payload)
         if(msg.payload=="GOODBYE"):
             task_goodbye()
 
@@ -61,7 +62,7 @@ def on_message(mosq, obj, msg):
             task_hello()
 
         if(msg.payload=="DOH"):
-            task_laugh()
+            task_doh()
 
         if(msg.payload=="LAUGH"):
             task_laugh()
@@ -70,10 +71,10 @@ def on_message(mosq, obj, msg):
         arguments=msg.payload.split(':');
         distance=int(arguments[1]);
         if(distance<40):
-            if(isBusy): print('Sorry bussy scaring!')
+            if(isBusy): print('BROKER: Sorry bussy scaring!')
             else:
                 isBusy=True
-                print('We turn skull')
+                print('BROKER: We turn skull')
                 task_ledsOn()
                 Timer(2,task_turnHead,()).start()
                 Timer(6,task_laugh,()).start()
@@ -81,6 +82,7 @@ def on_message(mosq, obj, msg):
                 Timer(9,task_ledsOff,()).start()
                 Timer(12,task_notBusy,()).start()
 
+print("BROKER: Connecting")
 client = paho.Client("halloween_broker")
 client.connect(args.server)
 connect_time=time.time()
@@ -89,7 +91,6 @@ client.subscribe('/arduino/2/sonar', 2)
 client.subscribe('/raspberry/1/incoming',2)
 
 pygame.mixer.init()
-pygame.mixer.music.load("/home/pi/arduino/sounds/witchlaugh.wav")
 
 try:
     while True:
