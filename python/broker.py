@@ -3,6 +3,7 @@
 
 from threading import Timer
 import time
+import os
 import argparse,time
 import pygame
 import paho.mqtt.client as paho
@@ -14,6 +15,34 @@ parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1],  default=0,
 args = parser.parse_args()
 
 isBusy=False        # To make sure we only have one head movement active
+servoX=0            # Where the servo is heading (used for queued tasks)
+servoY=0
+
+def setServoCoords(msg): #Parse the sinus values and populate servo values
+    servoXMin=13;
+    servoXMax=133;
+    servoXMid=73;
+    
+    l = []
+    for t in msg.split(','):
+        try:
+            print(t)
+            l.append(float(t))
+        except ValueError:
+            print('BROKER: Badly formed servo input')
+            return 
+
+    X=int(l[0]*90)+90-17 #Allow for calibration
+    if(X<servoXMin):
+        servoX=servoXMin
+    elif(X>servoXMax):
+        servoX=servoXMax
+    else:
+        servoX=X
+
+    servoY=int(l[1]*90)+90-17 #Allow for calibration
+    
+    print('BROKER: ServoX={}, ServoY={}'.format(servoX,servoY)) 
 
 def task_laugh():
     print("BROKER: LAUGH")
@@ -52,7 +81,21 @@ def task_notBusy():
     isBusy=False
 
 def on_message(mosq, obj, msg):
-    global isBusy
+    global isBusy       # Since we must queue some tasks these need to be global :-(
+    global servoX
+    global servoY
+
+    if('skull' in msg.topic and not isBusy):
+        if('ALONE' in msg.payload):
+            task_goodbye()
+            task_ledsOff()
+        else:
+            task_hello()
+            task_ledsOn()
+
+    if('facetracker' in msg.topic and not isBusy):
+        setServoCoords(msg.payload)
+
     if(msg.topic=='/raspberry/1/incoming'):
         print("BROKER: Message received on topic "+msg.topic+" with payload "+msg.payload)
         if(msg.payload=="GOODBYE"):
@@ -83,23 +126,32 @@ def on_message(mosq, obj, msg):
                 Timer(12,task_notBusy,()).start()
 
 print("BROKER: Connecting")
-client = paho.Client("halloween_broker")
+mypid = os.getpid()
+client = paho.Client("halloween_broker_"+str(mypid))
 client.connect(args.server)
 connect_time=time.time()
 client.on_message = on_message
 client.subscribe('/arduino/2/sonar', 2)
+client.subscribe('/minecraft/+/sonar/#', 2)
+client.subscribe('/minecraft/+/facetracker/#', 2)
+client.subscribe('/minecraft/+/block/#', 2)
+client.subscribe('/minecraft/+/skull/#', 2)
 client.subscribe('/raspberry/1/incoming',2)
 
 pygame.mixer.init()
 
 try:
-    while True:
-        now=time.time()
-        connected=int(now-connect_time)
-        client.loop(300)
+    while client.loop()==0:
+        pass
 
 except KeyboardInterrupt:
+    print('BROKER: Interrupt')
     client.unsubscribe("/arduino/2/sonar")
     client.unsubscribe("/raspberry/1/incoming")
+    client.unsubscribe('/minecraft/+/sonar/#')
+    client.unsubscribe('/minecraft/+/facetracker/#')
+    client.unsubscribe('/minecraft/+/block/#')
+    client.unsubscribe('/minecraft/+/skull/#')
+    client.unsubscribe('/raspberry/1/incoming')
     client.disconnect()
 
