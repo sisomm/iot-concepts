@@ -29,29 +29,21 @@ events.on('player.PlayerInteractEvent', function (listener, event) {
 		
 		var locString=loc.x+','+loc.y+','+loc.z;
 		
-		var statusTopic='/minecraft/'+loc.world.name+'/lever/'+locString+'/status';
-
 		// Is the lever up or down?
 		var state=(block.data==4)?"1":"0";
 
-		// Now publish position and state
-  		client.publish(statusTopic, // which topic
-  		state,					  	// the status
-  		2,						  	// QoS 1 ( send at least once )
-  		false); 					// broker should retain message
-
-		// Only send commands to LED if it is one of the right blocks
+		// Only publish if it is one of the right blocks
 		if(locString=="-249,71,210" || locString=="-251,71,210"){
 
 			//Left or right?
-			var led=(loc.x==-249)?"0":"1";
+			var which=(loc.x==-249)?"0":"1";
 
-			var commandTopic='/arduino/1/incoming';
-			var command='LED, '+led+', '+state;
+			var statusTopic='/minecraft/lever/'+locString+'/status';
+			var payload=which+', '+state;
 
-			client.publish(commandTopic, // which topic
-			command,					 // the command
-			2,						  	 // QoS 1 ( send at least once )
+			client.publish(statusTopic,  // which topic
+			payload,					 // the status
+			2,						  	 // QoS 
 			false); 				     // broker should retain message
 		}
 
@@ -83,7 +75,7 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 		return;
 	}
 	
-	if(timeDiff<1) {
+	if(timeDiff<0.5) {
 		return;
 	}
 
@@ -91,21 +83,8 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 	var dY=loc.y-fromY;
 	var dZ=loc.z-fromZ;
 	var distance=Math.sqrt(dY*dY+dX*dX+dZ*dZ);
-	
-	if (distance>10){
-		if(nearby){
-			client.publish('/arduino/3/incoming','LEDS_OFF',2,false);
-			client.publish('/raspberry/1/incoming','GOODBYE',2,false);
-		}	
-		nearby=false;
-		return;
-	} else {
-		if (!nearby){
-			client.publish('/arduino/3/incoming','LEDS_ON',2,false);
-			client.publish('/raspberry/1/incoming','HELLO',2,false);
-			nearby=true
-		}
-	}
+
+	var sonarPos='250,72,211';
 
 	var movedX=lastLoc.x-loc.x;
 	var movedY=lastLoc.y-loc.y;
@@ -115,27 +94,54 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 	if(moved<0.5) {
 		return;
 	}
-		
-	var horHyp=Math.sqrt(dX*dX+dZ*dZ);
-	var verHyp=Math.sqrt(dY*dY+dZ*dZ);
 	
-	sinX=dX/horHyp;
+	//The sonar only works in front of the skull and at distance shorter than 20
+	if (distance<21 && loc.z<fromZ) client.publish('/minecraft/world/sonar/'+sonarPos,'Ping: '+Math.floor(distance),2,false);
 	
-	var servoXPos=Math.floor(servoXMid-sinX*60);
+	if (distance>10){
+		if(nearby){
+			client.publish('/minecraft/world/skull/'+sonarPos,'IS_ALONE',2,false);
+//			client.publish('/arduino/3/incoming','LEDS_OFF',2,false);
+//			client.publish('/raspberry/1/incoming','GOODBYE',2,false);
+		}	
+		nearby=false;
+		return;
+	} else {
+		if (!nearby){
+			client.publish('/minecraft/world/skull/'+sonarPos,'HAS_COMPANY',2,false);			
+//			client.publish('/arduino/3/incoming','LEDS_ON',2,false);
+//			client.publish('/raspberry/1/incoming','HELLO',2,false);
+			nearby=true
+		}
+	}
+	
+//	var locMessage='X: '+Math.floor(loc.x)+', Y: '+Math.floor(loc.y)+', Z: '+Math.floor(loc.z);
+//	players[0].sendMessage(locMessage);	
 
-	//event.player.sendMessage('Mov: '+moved+', Tf: '+timeDiff+', sinX: '+sinX+', Servo: '+servoXPos);
 
+//	var servoXPos=Math.floor(servoXMid-sinX*60);
+
+	//The magic facetracker only works in front of the skull
+	if(loc.z<fromZ){
+		var horHyp=Math.sqrt(dX*dX+dZ*dZ);
+		var verHyp=Math.sqrt(dY*dY+dZ*dZ);
+		var sinX=dX/horHyp;
+		var sinY=dY/verHyp;
+		client.publish('/minecraft/world/facetracker/'+sonarPos,' '+sinX+', '+sinY,2,false);	
+	}
 	lastSeen=now;
 	lastLoc=loc;
 	
-	var command='SERVO, 1, '+servoXPos;
+//	var command='SERVO, 1, '+servoXPos;
 	
-	client.publish('/arduino/3/incoming',command,2,false);
-	
+//	client.publish('/arduino/3/incoming',command,2,false);
+
 })
 
 events.on('block.BlockBreakEvent', function (listener, event){
-		client.publish('/raspberry/1/incoming','DOH',2,false);
+		var loc = event.location;	
+		var locString=loc.x+','+loc.y+','+loc.z;
+		client.publish('/minecraft/world/block/'+locString+'/status','BROKEN',2,false);
 });
 
 
