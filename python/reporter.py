@@ -33,7 +33,7 @@ try:
         if(len(response)>0):
             if(args.verbosity>0):
                 print("Arduino says:"+response.strip())
-            client.publish(args.topic,,response.strip() ,1)
+            client.publish(args.topic,response.strip() ,1)
 
 except KeyboardInterrupt:
     print "Interrupt received"
