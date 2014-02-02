@@ -28,7 +28,7 @@ client.connect(args.server)
 client.on_message = on_message
 
 try:
-    while client.loop()=0:
+    while client.loop()==0:
         response = arduino.readline()
         if(len(response)>0):
             if(args.verbosity>0):
