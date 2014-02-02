@@ -50,31 +50,10 @@ def reconnect():
 
 connectall()
 
-#arduino.write('SERVO, 0, 50')
-#arduino.write('SERVO, 1, 73')
-
 try:
     while client.loop()==0:
-        print('reading MQTT')
-        now=time.time()
-        connected=int(now-connect_time)
-        print(connected)
-        print('reading Arduiono')
-        response = arduino.readline()
-        if(len(response)>0):
-            if(args.verbosity>0):
-                print("Arduino says:"+response.strip())
-            client.publish("/arduino/1/status",response.strip() ,0)
-
-except IndexError:
-    print "No data received within serial timeout period"
-    disconnectall()
+        pass
 
 except KeyboardInterrupt:
     print "Interrupt received"
     disconnectall()
-
-except RuntimError:
-    print "uh-oh! time to die"
-    disconnectall()
-

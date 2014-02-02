@@ -2,13 +2,14 @@
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 # (c) Simen Sommerfeldt, @sisomm, simen.sommerfeldt@gmail.com Licensed as CC-BY-SA 
-import serial, time
+import os, serial, time
 import argparse
 import paho.mqtt.client as paho
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-p","--port", help="The port where the Arduino is attached")
 parser.add_argument("-s","--server", default="127.0.0.1", help="The IP address of the MQTT server")
+parser.add_argument("-t","--topic ", default="", help="The topic name to report to")
 parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1],  default=0,
                     help="increase output verbosity")
 args = parser.parse_args()
@@ -27,16 +28,13 @@ client.connect(args.server)
 client.on_message = on_message
 
 try:
-    while True:
-        client.loop()
+    while client.loop()=0:
         response = arduino.readline()
         if(len(response)>0):
             if(args.verbosity>0):
                 print("Arduino says:"+response.strip())
-            client.publish("/arduino/2/sonar",response.strip() ,1)
-#        time.sleep(0.1)
+            client.publish(args.topic,,response.strip() ,1)
+
 except KeyboardInterrupt:
+    print "Interrupt received"
     arduino.close()
-
-
-

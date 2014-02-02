@@ -34,6 +34,7 @@ def task_doh():
     print("DOH!")
     pygame.mixer.music.load("../sounds/doh.wav") 
     pygame.mixer.music.play()
+
 def task_ledsOff():
     client.publish('/arduino/1/incoming','LEDS_OFF',2)
 
@@ -61,7 +62,7 @@ def on_message(mosq, obj, msg):
             task_hello()
 
         if(msg.payload=="DOH"):
-            task_laugh()
+            task_doh()
 
         if(msg.payload=="LAUGH"):
             task_laugh()
