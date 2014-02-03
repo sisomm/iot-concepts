@@ -81,16 +81,16 @@ void cmd_led(int ledPin, int toState){    // Set a led to a state
         state=LOW;
       }
 
-/*      if (ledPin>ledPin1)
+      if (ledPin>ledPin1)
         Serial.println("Wrong LED pin argument");
       else{
         digitalWrite(ledPin,state); 
         //Send status back
-        Serial.print("Pin: ");
+/*        Serial.print("Pin: ");
         Serial.print(ledPin);
         Serial.print(", State: ");
-        Serial.println(state==HIGH?"HIGH":"LOW");
-      } */
+        Serial.println(state==HIGH?"HIGH":"LOW"); */
+      } 
 }
 
 void cmd_servoSlow(int servoPin, int servoStart, int servoStop){  // move a servo from one pos to another
@@ -147,7 +147,7 @@ void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new p
       int increment1=(servo1To>lastServo1Pos?+2:-2);
 
       int repetitions=max(abs(servo0To-lastServo0Pos),abs(servo1To-lastServo1Pos))/2;  // We move servos two steps at a time
-      Serial.println(repetitions);
+      //Serial.println(repetitions);
       for(int i=0;i<repetitions;i++){
         if(abs(servo0To-lastServo0Pos)>2){            // Stop moving the servo that has reached the position
           servo0.write(lastServo0Pos+=increment0);
@@ -155,7 +155,7 @@ void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new p
         if(abs(servo1To-lastServo1Pos)>2){
           servo1.write(lastServo1Pos+=increment1);        
         }
-        delay(20);    // Allow the move to complete
+        delay(25);    // Allow the move to complete
       }
 
 /*      // Send status back  
