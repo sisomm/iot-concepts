@@ -19,30 +19,41 @@ servoX=0            # Where the servo is heading (used for queued tasks)
 servoY=0
 
 def setServoCoords(msg): #Parse the sinus values and populate servo values
+    global servoX, servoY
     servoXMin=13;
     servoXMax=133;
     servoXMid=73;
+    servoYMin=33;
+    servoYMax=80;
+    servoYMid=65;
     
     l = []
     for t in msg.split(','):
         try:
-            print(t)
             l.append(float(t))
         except ValueError:
             print('BROKER: Badly formed servo input')
             return 
 
-    X=int(l[0]*90)+90-17 #Allow for calibration
-    if(X<servoXMin):
+    X=int(servoXMid-l[0]*90)         #Allow for calibration
+    if(X<servoXMin):                 #The skull is heavy. not too big turns 
         servoX=servoXMin
     elif(X>servoXMax):
         servoX=servoXMax
     else:
         servoX=X
 
-    servoY=int(l[1]*90)+90-17 #Allow for calibration
-    
-    print('BROKER: ServoX={}, ServoY={}'.format(servoX,servoY)) 
+    Y=int(servoYMid-l[1]*90-20)         #Allow for calibration
+    if(Y<servoYMin):                 #The skull is heavy. Not too big pitch
+        servoY=servoYMin
+    elif(Y>servoYMax):
+        servoY=servoYMax
+    else:
+        servoY=Y
+
+def task_moveServos():
+    print('BROKER: Move servos: {},{}'.format(servoY,servoX))
+    client.publish('/arduino/1/incoming','SERVOS_MOVE,{},{}'.format(servoY,servoX),0)
 
 def task_laugh():
     print("BROKER: LAUGH")
@@ -51,6 +62,7 @@ def task_laugh():
    
 def task_goodbye():
     print("BROKER: GOODBYE")
+    client.publish('/arduino/1/incoming','SERVOS_MOVE,50,71',0)
     pygame.mixer.music.load("../sounds/despicable.wav")
     pygame.mixer.music.play()
 
@@ -65,16 +77,16 @@ def task_doh():
     pygame.mixer.music.play()
 
 def task_ledsOff():
-    client.publish('/arduino/1/incoming','LEDS_OFF',2)
+    client.publish('/arduino/1/incoming','LEDS_OFF',0)
 
 def task_ledsOn():
-    client.publish('/arduino/1/incoming','LEDS_ON',2)
+    client.publish('/arduino/1/incoming','LEDS_ON',0)
 
 def task_turnHead():
-    client.publish('/arduino/1/incoming','SERVOS_MOVE, 50, 20',2)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 50, 20',0)
 
 def task_turnHeadBack():
-    client.publish('/arduino/1/incoming','SERVOS_MOVE, 50, 72',2)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 50, 72',0)
 
 def task_notBusy():
     global isBusy
@@ -91,10 +103,11 @@ def on_message(mosq, obj, msg):
             task_ledsOff()
         else:
             task_hello()
-            task_ledsOn()
+            Timer(1,task_ledsOn,()).start()
 
     if('facetracker' in msg.topic and not isBusy):
         setServoCoords(msg.payload)
+        task_moveServos()        
 
     if(msg.topic=='/raspberry/1/incoming'):
         print("BROKER: Message received on topic "+msg.topic+" with payload "+msg.payload)
@@ -131,12 +144,12 @@ client = paho.Client("halloween_broker_"+str(mypid))
 client.connect(args.server)
 connect_time=time.time()
 client.on_message = on_message
-client.subscribe('/arduino/2/sonar', 2)
-client.subscribe('/minecraft/+/sonar/#', 2)
-client.subscribe('/minecraft/+/facetracker/#', 2)
-client.subscribe('/minecraft/+/block/#', 2)
-client.subscribe('/minecraft/+/skull/#', 2)
-client.subscribe('/raspberry/1/incoming',2)
+client.subscribe('/arduino/2/sonar', 0)
+client.subscribe('/minecraft/+/sonar/#', 0)
+client.subscribe('/minecraft/+/facetracker/#', 0)
+client.subscribe('/minecraft/+/block/#', 0)
+client.subscribe('/minecraft/+/skull/#', 0)
+client.subscribe('/raspberry/1/incoming',0)
 
 pygame.mixer.init()
 
