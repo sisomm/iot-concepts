@@ -81,7 +81,7 @@ void cmd_led(int ledPin, int toState){    // Set a led to a state
         state=LOW;
       }
 
-      if (ledPin>ledPin1)
+/*      if (ledPin>ledPin1)
         Serial.println("Wrong LED pin argument");
       else{
         digitalWrite(ledPin,state); 
@@ -90,7 +90,7 @@ void cmd_led(int ledPin, int toState){    // Set a led to a state
         Serial.print(ledPin);
         Serial.print(", State: ");
         Serial.println(state==HIGH?"HIGH":"LOW");
-      }
+      } */
 }
 
 void cmd_servoSlow(int servoPin, int servoStart, int servoStop){  // move a servo from one pos to another
@@ -117,12 +117,12 @@ void cmd_servoSlow(int servoPin, int servoStart, int servoStop){  // move a serv
       }
 
       // Send status back  
-      Serial.print("Servo slow: ");
+/*      Serial.print("Servo slow: ");
       Serial.print(servoPin);
       Serial.print(", From: ");
       Serial.print(servoStart);
       Serial.print(" to ");
-      Serial.println(servoStop);
+      Serial.println(servoStop); */
 }
 
 void cmd_Servo(int servoPin,int servoPos){  // Set a servo to a position
@@ -136,10 +136,10 @@ void cmd_Servo(int servoPin,int servoPos){  // Set a servo to a position
       }
 
       // Send status back  
-      Serial.print("Servo: ");
+/*      Serial.print("Servo: ");
       Serial.print(servoPin);
       Serial.print(", Position: ");
-      Serial.println(servoPos);
+      Serial.println(servoPos); */
 }
 
 void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new position, remembering the old
@@ -158,15 +158,16 @@ void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new p
         delay(20);    // Allow the move to complete
       }
 
-      // Send status back  
+/*      // Send status back  
       Serial.print("Servos_move: ");
       Serial.print(lastServo0Pos);
       Serial.print(", ");
-      Serial.println(lastServo1Pos);
+      Serial.println(lastServo1Pos);*/
 }
 
 void loop() {
 
+  //Implements a ping-pong protocol with the other end. All commands must be acknowledged
   SerialParser();
 
   if (byteCount  > 0) {
@@ -203,6 +204,7 @@ void loop() {
       servo0.write(servo0Neutral); 
       servo1.write(servo1Neutral); 
     }
+    Serial.println(theCommand);
   }
 
 }
