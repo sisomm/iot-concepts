@@ -51,6 +51,11 @@ def setServoCoords(msg): #Parse the sinus values and populate servo values
     else:
         servoY=Y
 
+def ledCommand(command):
+    print('BROKER: LED,'+command)
+    client.publish('/arduino/1/incoming','LED,{}'.format(command),0)
+
+
 def task_moveServos():
     print('BROKER: Move servos: {},{}'.format(servoY,servoX))
     client.publish('/arduino/1/incoming','SERVOS_MOVE,{},{}'.format(servoY,servoX),0)
@@ -97,19 +102,29 @@ def on_message(mosq, obj, msg):
     global servoX
     global servoY
 
-    if('skull' in msg.topic and not isBusy):
+    if('lever' in msg.topic and not isBusy):
+        if('249' in msg.topic):
+            ledCommand('0,'+msg.payload)
+        else:
+            ledCommand('1,'+msg.payload)
+            
+    elif('skull' in msg.topic and not isBusy):
         if('ALONE' in msg.payload):
             task_goodbye()
             task_ledsOff()
         else:
-            task_hello()
-            Timer(1,task_ledsOn,()).start()
+            task_ledsOn()
+            Timer(1,task_hello,()).start()
 
-    if('facetracker' in msg.topic and not isBusy):
+    elif('facetracker' in msg.topic and not isBusy):
         setServoCoords(msg.payload)
         task_moveServos()        
 
-    if(msg.topic=='/raspberry/1/incoming'):
+    elif('block' in msg.topic and not isBusy):
+        task_doh()        
+
+
+    elif(msg.topic=='/raspberry/1/incoming'):
         print("BROKER: Message received on topic "+msg.topic+" with payload "+msg.payload)
         if(msg.payload=="GOODBYE"):
             task_goodbye()
@@ -123,7 +138,7 @@ def on_message(mosq, obj, msg):
         if(msg.payload=="LAUGH"):
             task_laugh()
 
-    if(msg.topic=='/arduino/2/sonar'):
+    elif(msg.topic=='/arduino/2/sonar'):
         arguments=msg.payload.split(':');
         distance=int(arguments[1]);
         if(distance!=0 and distance<40):
@@ -149,6 +164,7 @@ client.subscribe('/minecraft/+/sonar/#', 0)
 client.subscribe('/minecraft/+/facetracker/#', 0)
 client.subscribe('/minecraft/+/block/#', 0)
 client.subscribe('/minecraft/+/skull/#', 0)
+client.subscribe('/minecraft/+/lever/#', 0)
 client.subscribe('/raspberry/1/incoming',0)
 
 pygame.mixer.init()
@@ -165,6 +181,7 @@ except KeyboardInterrupt:
     client.unsubscribe('/minecraft/+/facetracker/#')
     client.unsubscribe('/minecraft/+/block/#')
     client.unsubscribe('/minecraft/+/skull/#')
+    client.unsubscribe('/minecraft/+/lever/#')
     client.unsubscribe('/raspberry/1/incoming')
     client.disconnect()
 

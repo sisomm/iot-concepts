@@ -3,42 +3,44 @@
 import serial, time
 import Queue
 import os
+import thread
 import argparse
 import paho.mqtt.client as paho
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-p","--port", help="The port where the Arduino is attached")
 parser.add_argument("-s","--server", default="127.0.0.1", help="The IP address of the MQTT server")
-parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1],  default=0,
+parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2],  default=0,
                     help="increase output verbosity")
 args = parser.parse_args()
 
-arduino = serial.Serial(args.port, 57600, timeout=1)
+arduino = serial.Serial(args.port, 57600, timeout=0.01)
 mypid = os.getpid()
 client = paho.Client("arduino_dispatch_"+str(mypid))
 
-connect_time=time.time()
 
 commands=Queue.Queue(0)
 
-def sendToArduino(arduinoCommand):
-    arduino.write(arduinoCommand)
+def arduinoLoop():
 
-    # wait until we get OK back
-    ack=False
-    response=''
-    while not ack:
-        time.sleep(0.10)
-        response=arduino.readline()
-        if len(response)>0):
-            ack=True
+    while True:
+        if(not commands.empty()):
+            command=commands.get()
+            if(args.verbosity>0):
+                print("DISPATCHER: sending to Arduino: "+command)
+            start=time.time()
+            arduino.write(command)
 
-        response=arduino.readline()
-        if len(response)>0):
-            ack=True
-    return response
+            # wait until we get OK back
+            response=''
+            ack=False
+            while not ack:
+                response=arduino.readline()
+                if (len(response)>0):
+                    ack=True
 
-
+            end=time.time()
+            print('Response to {} took {:G} millis'.format(response.strip(),(end-start)*1000))
 
 def on_message(mosq, obj, msg):
     #called when we get an MQTT message that we subscribe to
@@ -46,11 +48,7 @@ def on_message(mosq, obj, msg):
         print("DISPATCHER: Message received on topic "+msg.topic+" with payload "+msg.payload)
 
     arduinoCommand=msg.payload
-
     commands.put(arduinoCommand)
-
-    if(args.verbosity>0):
-        print("DISPATCHER: sending to Arduino: "+arduinoCommand)
 
 def connectall():
     print("DISPATCHER: Connecting")
@@ -74,12 +72,17 @@ def reconnect():
 connectall()
 
 try:
+    thread.start_new_thread( arduinoLoop, () )
+except:
+    Print('Unable to start thread.')
+
+#commands.put("servos_move,100,50")
+#commands.put("servos_move,50,100")
+#commands.put("leds_off")
+#commands.put("leds_on")
+
+try:
     while client.loop()==0:
-        if(not commands.empty()):
-            command=commands.get()
-            print('Queue: '+command)
-            response=sendToArduino(command) 
-            print('Response: '+response)
         pass
 
 except KeyboardInterrupt:
