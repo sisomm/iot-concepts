@@ -1,0 +1,5 @@
+This is a gruesome hack completed in four hours to check if 
+java comms were faster than python. They were not!
+I stitched it together usig what i found at various places on the net,
+and I keep it here just in case I should need to make a proper java client
+
