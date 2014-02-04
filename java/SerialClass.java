@@ -6,13 +6,15 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.concurrent.*;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import java.util.Enumeration;
+
 public class SerialClass implements SerialPortEventListener {
- 
+ public BlockingQueue queue; 
  public SerialPort serialPort;
  /** The port we're normally going to use. */
  private static final String PORT_NAMES[] = {
@@ -28,6 +30,9 @@ public static OutputStream output;
  /** Default bits per second for COM port. */
  public static final int DATA_RATE = 57600;
  
+public void setQueue(BlockingQueue theQueue){
+    queue=theQueue;
+}    
 public void initialize() {
  CommPortIdentifier portId = null;
  Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
@@ -83,10 +88,11 @@ public synchronized void close() {
 public synchronized void serialEvent(SerialPortEvent oEvent) {
  if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
  try {
- String inputLine=input.readLine();
- System.out.println(inputLine);
+    String inputLine=input.readLine();
+    System.out.println("From port: "+inputLine);
+    queue.put(inputLine);
  } catch (Exception e) {
- System.err.println(e.toString());
+    System.err.println(e.toString());
  }
  }
  
@@ -100,7 +106,7 @@ public synchronized void serialEvent(SerialPortEvent oEvent) {
  System.out.println("could not write to port");
  }
  }
- 
+/* 
 public static void main(String[] args) throws Exception {
  SerialClass main = new SerialClass();
  main.initialize();
@@ -115,4 +121,6 @@ public static void main(String[] args) throws Exception {
  t.start();
  System.out.println("Started");
  }
+*/
 }
+

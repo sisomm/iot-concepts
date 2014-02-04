@@ -8,6 +8,7 @@ import gnu.io.SerialPortEvent;
 import java.io.IOException;
 import gnu.io.SerialPortEventListener;
 import java.util.Enumeration;
+import java.util.concurrent.*;
 
 public class Dispatcher implements MqttCallback
 {
@@ -15,7 +16,27 @@ public class Dispatcher implements MqttCallback
  public OutputStream output;
  public MqttClient client;
  public SerialClass obj;
- 
+
+ BlockingQueue commandQueue = new ArrayBlockingQueue(1024);
+ BlockingQueue responseQueue= new ArrayBlockingQueue(1024);
+
+  private class serialSender implements Runnable {
+        @Override
+        public void run() {
+            try {
+                while(!Thread.currentThread().isInterrupted()) {
+                    // will block until there is work to do.
+                    String command = (String) commandQueue.take();
+                    obj.writeData(command);
+                    String response = (String) responseQueue.take();
+                    System.out.println("Response: "+response);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
  public synchronized void writeData(String data) {
     System.out.println("Sent: " + data);
     try {
@@ -31,8 +52,7 @@ public class Dispatcher implements MqttCallback
   {
     String payload=new String (message.getPayload());
     System.out.println (topic + " " + new String (message.getPayload()));
-    writeData(payload);
-    Thread.sleep(100);
+    commandQueue.put(payload);
   }
 
   public void connectionLost (Throwable cause) {}
@@ -46,8 +66,14 @@ public class Dispatcher implements MqttCallback
     try {
       obj = new SerialClass();
       obj.initialize();
+      obj.setQueue(responseQueue);
       input = SerialClass.input;
       output = SerialClass.output;
+
+      Thread sender= new Thread(new serialSender());
+      sender.setDaemon(true); // don't hold the VM open for this thread
+      sender.start();
+
       client = new MqttClient("tcp://192.168.1.36:1883", MqttClient.generateClientId());
       client.connect();
       client.setCallback(this);
