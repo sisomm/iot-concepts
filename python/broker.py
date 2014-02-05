@@ -35,6 +35,8 @@ def setServoCoords(msg): #Parse the sinus values and populate servo values
             print('BROKER: Badly formed servo input')
             return 
 
+#You need to adjust the code below to your own servo
+
     X=int(servoXMid-l[0]*90)         #Allow for calibration
     if(X<servoXMin):                 #The skull is heavy. not too big turns 
         servoX=servoXMin
