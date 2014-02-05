@@ -1,4 +1,4 @@
-//package arduino;
+// This raw hack was pulled from the net
 /**
  *
  * @author Atulmaharaj
