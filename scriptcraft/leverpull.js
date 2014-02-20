@@ -36,14 +36,14 @@ events.on('player.PlayerInteractEvent', function (listener, event) {
 		if(locString=="-249,71,210" || locString=="-251,71,210"){
 
 			//Left or right?
-			var which=(loc.x==-249)?"0":"1";
+			//var which=(loc.x==-249)?"0":"1";
 
-			var statusTopic='/minecraft/lever/'+locString+'/status';
-			var payload=which+', '+state;
+			var statusTopic='/minecraft/world/lever/'+locString+'/status';
+			var payload=state;
 
 			client.publish(statusTopic,  // which topic
 			payload,					 // the status
-			2,						  	 // QoS 
+			0,						  	 // QoS 
 			false); 				     // broker should retain message
 		}
 
@@ -75,7 +75,7 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 		return;
 	}
 	
-	if(timeDiff<0.5) {
+	if(timeDiff<0.1) {
 		return;
 	}
 
@@ -86,62 +86,52 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 
 	var sonarPos='250,72,211';
 
-	var movedX=lastLoc.x-loc.x;
+	var movedX=lastLoc.x-loc.x;8
 	var movedY=lastLoc.y-loc.y;
 	var movedZ=lastLoc.z-loc.z;
 	var moved=Math.sqrt(movedX*movedX+movedY*movedY+movedZ*movedZ);
 
-	if(moved<0.5) {
+	if(moved<0.1) {
 		return;
 	}
 	
 	//The sonar only works in front of the skull and at distance shorter than 20
-	if (distance<21 && loc.z<fromZ) client.publish('/minecraft/world/sonar/'+sonarPos,'Ping: '+Math.floor(distance),2,false);
-	
-	if (distance>10){
+	if (distance<21 && loc.z<fromZ) client.publish('/minecraft/world/sonar/'+sonarPos,'Ping: '+Math.floor(distance),2,false);	
+
+	//Find out if the skull has company 
+	if (distance>13){
 		if(nearby){
-			client.publish('/minecraft/world/skull/'+sonarPos,'IS_ALONE',2,false);
-//			client.publish('/arduino/3/incoming','LEDS_OFF',2,false);
-//			client.publish('/raspberry/1/incoming','GOODBYE',2,false);
+			client.publish('/minecraft/world/skull/'+sonarPos,'IS_ALONE',0,false);
 		}	
 		nearby=false;
 		return;
 	} else {
 		if (!nearby){
-			client.publish('/minecraft/world/skull/'+sonarPos,'HAS_COMPANY',2,false);			
-//			client.publish('/arduino/3/incoming','LEDS_ON',2,false);
-//			client.publish('/raspberry/1/incoming','HELLO',2,false);
+			client.publish('/minecraft/world/skull/'+sonarPos,'HAS_COMPANY',0,false);			
 			nearby=true
 		}
 	}
 	
-//	var locMessage='X: '+Math.floor(loc.x)+', Y: '+Math.floor(loc.y)+', Z: '+Math.floor(loc.z);
-//	players[0].sendMessage(locMessage);	
-
-
-//	var servoXPos=Math.floor(servoXMid-sinX*60);
-
 	//The magic facetracker only works in front of the skull
 	if(loc.z<fromZ){
 		var horHyp=Math.sqrt(dX*dX+dZ*dZ);
 		var verHyp=Math.sqrt(dY*dY+dZ*dZ);
 		var sinX=dX/horHyp;
 		var sinY=dY/verHyp;
-		client.publish('/minecraft/world/facetracker/'+sonarPos,' '+sinX+', '+sinY,2,false);	
+		client.publish('/minecraft/world/facetracker/'+sonarPos,sinX+', '+sinY,0,false);	
 	}
+	
+	
+	
 	lastSeen=now;
 	lastLoc=loc;
-	
-//	var command='SERVO, 1, '+servoXPos;
-	
-//	client.publish('/arduino/3/incoming',command,2,false);
 
 })
 
 events.on('block.BlockBreakEvent', function (listener, event){
-		var loc = event.location;	
+		var loc=event.player.location;
 		var locString=loc.x+','+loc.y+','+loc.z;
-		client.publish('/minecraft/world/block/'+locString+'/status','BROKEN',2,false);
+		client.publish('/minecraft/world/block/'+locString+'/status','BROKEN',0,false);
 });
 
 

@@ -20,12 +20,12 @@ servoY=0
 
 def setServoCoords(msg): #Parse the sinus values and populate servo values
     global servoX, servoY
-    servoXMin=13;
-    servoXMax=133;
-    servoXMid=73;
-    servoYMin=33;
-    servoYMax=80;
-    servoYMid=65;
+    servoXMin=200 # 13 for other servo;
+    servoXMax=520 # 133 ;
+    servoXMid=360 # 73;
+    servoYMin=235 # 33;
+    servoYMax=520 # 80;
+    servoYMid=320 # 65;
     
     l = []
     for t in msg.split(','):
@@ -37,7 +37,7 @@ def setServoCoords(msg): #Parse the sinus values and populate servo values
 
 #You need to adjust the code below to your own servo
 
-    X=int(servoXMid-l[0]*90)         #Allow for calibration
+    X=int(servoXMid-l[0]*160)         # 90 was old factor. Allow for calibration
     if(X<servoXMin):                 #The skull is heavy. not too big turns 
         servoX=servoXMin
     elif(X>servoXMax):
@@ -45,7 +45,7 @@ def setServoCoords(msg): #Parse the sinus values and populate servo values
     else:
         servoX=X
 
-    Y=int(servoYMid-l[1]*90-20)         #Allow for calibration
+    Y=int(servoYMid-l[1]*160-20)         # 90 was old, Allow for calibration
     if(Y<servoYMin):                 #The skull is heavy. Not too big pitch
         servoY=servoYMin
     elif(Y>servoYMax):
@@ -60,7 +60,7 @@ def ledCommand(command):
 
 def task_moveServos():
     print('BROKER: Move servos: {},{}'.format(servoY,servoX))
-    client.publish('/arduino/1/incoming','SERVOS_MOVE,{},{}'.format(servoY,servoX),0)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE,{},{}'.format(servoX,servoY),0)
 
 def task_laugh():
     print("BROKER: LAUGH")
@@ -69,7 +69,7 @@ def task_laugh():
    
 def task_goodbye():
     print("BROKER: GOODBYE")
-    client.publish('/arduino/1/incoming','SERVOS_MOVE,50,71',0)
+    client.publish('/arduino/1/incoming','SERVO_NEUTRAL',0)
     pygame.mixer.music.load("../sounds/despicable.wav")
     pygame.mixer.music.play()
 
@@ -90,7 +90,7 @@ def task_ledsOn():
     client.publish('/arduino/1/incoming','LEDS_ON',0)
 
 def task_turnHead():
-    client.publish('/arduino/1/incoming','SERVOS_MOVE, 50, 20',0)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 40, 120',0)
 
 def task_turnHeadBack():
     client.publish('/arduino/1/incoming','SERVOS_MOVE, 50, 72',0)
