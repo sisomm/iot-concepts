@@ -149,7 +149,7 @@ void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new p
         if(abs(servo1To-lastServoPos[1])>2){
           pwm.setPWM(1,0,lastServoPos[1]+=increment1);        
         }
-        delay(10);    // Allow the move to complete
+        delay(3);    // Allow the move to complete
       }
 }
 
