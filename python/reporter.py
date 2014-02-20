@@ -14,7 +14,7 @@ parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1],  default=0,
                     help="increase output verbosity")
 args = parser.parse_args()
 
-arduino = serial.Serial(args.port, 57600, timeout=1)
+arduino = serial.Serial(args.port, 9600, timeout=1)
 arduino.open()
 
 def on_message(mosq, obj, msg):
@@ -30,7 +30,7 @@ client.connect(args.server)
 client.on_message = on_message
 
 try:
-    while client.loop()==0:
+    while True:
         response = arduino.readline()
         if(len(response)>0):
             if(args.verbosity>0):
