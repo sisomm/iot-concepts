@@ -55,7 +55,7 @@ void SerialParser(void) {
 
 
 void setup() {
-  Serial.begin(57600);
+  Serial.begin(9600);
 
   pinMode(ledPin0,OUTPUT);
   pinMode(ledPin1,OUTPUT);

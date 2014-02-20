@@ -26,7 +26,7 @@ const int echoPin = 9;
  
 void setup() {
   // initialize serial communication:
-  Serial.begin(57600);
+  Serial.begin(9600);
 }
  
 void loop()
@@ -63,7 +63,7 @@ void loop()
   Serial.print("cm");
   Serial.println();
   */
-  delay(200);
+  delay(500);
 }
  
 long microsecondsToInches(long microseconds)

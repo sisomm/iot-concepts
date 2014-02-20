@@ -60,7 +60,7 @@ void SerialParser(void) {
       }
     }
   }
-  mySerial.print(buffer);
+  //mySerial.print(buffer);
   Serial.print(buffer);
 //  byteCount =  mySerial.readBytesUntil('\n',buffer,bSize);  
 
@@ -91,8 +91,8 @@ void setup() {
   
   pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
   
-  lastServoPos[0]=servo0Neutral;
-  lastServoPos[1]=servo1Neutral;  
+//  lastServoPos[0]=servo0Neutral;
+//  lastServoPos[1]=servo1Neutral;  
 
 }
 
@@ -149,7 +149,7 @@ void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new p
         if(abs(servo1To-lastServoPos[1])>2){
           pwm.setPWM(1,0,lastServoPos[1]+=increment1);        
         }
-        delay(25);    // Allow the move to complete
+        delay(10);    // Allow the move to complete
       }
 }
 
@@ -168,7 +168,6 @@ void loop() {
       digitalWrite(ledPin1,LOW); 
     }
     else if(theCommand.equalsIgnoreCase("LED")){   
-      Serial.print("\nLED FOR FAEN!");
       int ledPin=ledPin0+arg1.toInt(); // Find out which pin to control. 48 is the ascii code for '0'
       int toState=arg2.toInt();
       cmd_led(ledPin, toState);
@@ -195,7 +194,7 @@ void loop() {
     }
     Serial.println(theCommand);
     mySerial.print(theCommand);
-    mySerial.print(10);
+    mySerial.print('\n');
     mySerial.flush();
   }
 
