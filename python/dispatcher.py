@@ -14,7 +14,8 @@ parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2],  default=0
                     help="increase output verbosity")
 args = parser.parse_args()
 
-arduino = serial.Serial(args.port, 57600, timeout=0.01)
+arduino = serial.Serial(args.port, 9600)
+arduino.setDTR(level=False)
 mypid = os.getpid()
 client = paho.Client("arduino_dispatch_"+str(mypid))
 
@@ -29,18 +30,18 @@ def arduinoLoop():
             if(args.verbosity>0):
                 print("DISPATCHER: sending to Arduino: "+command)
             start=time.time()
-            arduino.write(command)
+            arduino.write(command+'|')
 
             # wait until we get OK back
             response=''
             ack=False
             while not ack:
-                response=arduino.readline()
+                response=arduino.read()
                 if (len(response)>0):
                     ack=True
 
             end=time.time()
-            print('Response to {} took {:G} millis'.format(response.strip(),(end-start)*1000))
+            print('Response to {} took {:G} millis'.format(command,(end-start)*1000))
 
 def on_message(mosq, obj, msg):
     #called when we get an MQTT message that we subscribe to
@@ -82,7 +83,7 @@ except:
 #commands.put("leds_on")
 
 try:
-    while client.loop()==0:
+    while client.loop(300)==0:
         pass
 
 except KeyboardInterrupt:
