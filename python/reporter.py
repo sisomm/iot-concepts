@@ -14,7 +14,7 @@ parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1],  default=0,
                     help="increase output verbosity")
 args = parser.parse_args()
 
-arduino = serial.Serial(args.port, 57600, timeout=1)
+arduino = serial.Serial(args.port, 9600, timeout=1)
 arduino.open()
 
 def on_message(mosq, obj, msg):
