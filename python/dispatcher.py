@@ -19,7 +19,6 @@ arduino.setDTR(level=False)
 mypid = os.getpid()
 client = paho.Client("arduino_dispatch_"+str(mypid))
 
-
 commands=Queue.Queue(0)
 
 def arduinoLoop():
@@ -36,12 +35,12 @@ def arduinoLoop():
             response=''
             ack=False
             while not ack:
-                response=arduino.read()
+                response=arduino.readline()
                 if (len(response)>0):
                     ack=True
 
             end=time.time()
-            print('Response to {} took {:G} millis'.format(command,(end-start)*1000))
+            print('Response {} to {} took {:G} millis'.format(response,command,(end-start)*1000))
 
 def on_message(mosq, obj, msg):
     #called when we get an MQTT message that we subscribe to
