@@ -1,5 +1,6 @@
 //Accepts commands to control two LED's and two servos over the serial port. 
 //This version uses the Softserial connection and Adafruit ServoShield 
+//(c) Simen Sommerfeldt, @sisomm, simen.sommerfeldt@gmail.com Licensed as CC-BY-SA
 
 //#include <Servo.h>
 #include <Wire.h>
