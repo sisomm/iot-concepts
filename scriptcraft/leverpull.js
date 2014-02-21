@@ -1,3 +1,6 @@
+//Demonstrates IoT concepts using MQTT, Arduino and Python on RaspI.
+//(c) Simen Sommerfeldt, @sisomm, simen.sommerfeldt@gmail.com Licensed as CC-BY-SA
+
 var mqtt = require('sc-mqtt');  
 
 var client = mqtt.client('tcp://192.168.1.36:1883'); // local host is default. Otherwise use host, user/pwd
@@ -96,7 +99,7 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 	}
 	
 	//The sonar only works in front of the skull and at distance shorter than 20
-	if (distance<21 && loc.z<fromZ) client.publish('/minecraft/world/sonar/'+sonarPos,'Ping: '+Math.floor(distance),2,false);	
+	//if (distance<21 && loc.z<fromZ) client.publish('/minecraft/world/sonar/'+sonarPos,'Ping: '+Math.floor(distance),2,false);	
 
 	//Find out if the skull has company 
 	if (distance>13){
