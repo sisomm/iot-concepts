@@ -58,16 +58,12 @@ events.on('player.PlayerInteractEvent', function (listener, event) {
 events.on('player.PlayerMoveEvent', function (listener, event) { 
 	var loc=event.player.location;
 
-	// The position of the block above and between the levers	
+	// The position of the skull: The origin for the face tracker 	
 	var fromX=-250;
-	var fromY=71;
+	var fromY=70.5;   // Actually 71, but we want the skull to look straight forward
 	var fromZ=211;
 	
-	//The max horizontal range for the servos
-	var servoXMin=13;
-	var servoXMax=133;
-	var servoXMid=73;
-	
+
 	var now=new Date();
 	
 	var timeDiff=(now-lastSeen)/1000;
@@ -78,7 +74,7 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 		return;
 	}
 	
-	if(timeDiff<0.1) {
+	if(timeDiff<0.1) { // We don´t want more than 10 updates/sec
 		return;
 	}
 
@@ -94,7 +90,7 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 	var movedZ=lastLoc.z-loc.z;
 	var moved=Math.sqrt(movedX*movedX+movedY*movedY+movedZ*movedZ);
 
-	if(moved<0.1) {
+	if(moved<0.1) {	// Don't bother if it hasn't moved
 		return;
 	}
 	
@@ -123,8 +119,6 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 		var sinY=dY/verHyp;
 		client.publish('/minecraft/world/facetracker/'+sonarPos,sinX+', '+sinY,0,false);	
 	}
-	
-	
 	
 	lastSeen=now;
 	lastLoc=loc;
