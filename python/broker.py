@@ -60,7 +60,7 @@ def ledCommand(command):
 
 def task_moveServos():
     print('BROKER: Move servos: {},{}'.format(servoY,servoX))
-    client.publish('/arduino/1/incoming','SERVOS_MOVE,{},{}'.format(servoX,servoY),0)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE,{},{},3'.format(servoX,servoY),0)
 
 def task_laugh():
     print("BROKER: LAUGH")
@@ -90,10 +90,10 @@ def task_ledsOn():
     client.publish('/arduino/1/incoming','LEDS_ON',0)
 
 def task_turnHead():
-    client.publish('/arduino/1/incoming','SERVOS_MOVE, 40, 120',0)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 520, 235, 15',0)
 
 def task_turnHeadBack():
-    client.publish('/arduino/1/incoming','SERVOS_MOVE, 50, 72',0)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 360, 320, 15',0)
 
 def task_notBusy():
     global isBusy
@@ -149,11 +149,11 @@ def on_message(mosq, obj, msg):
                 isBusy=True
                 print('BROKER: We turn skull')
                 task_ledsOn()
-                Timer(2,task_turnHead,()).start()
-                Timer(6,task_laugh,()).start()
-                Timer(8,task_turnHeadBack,()).start()
-                Timer(9,task_ledsOff,()).start()
-                Timer(12,task_notBusy,()).start()
+                Timer(3,task_turnHead,()).start()
+                Timer(5,task_laugh,()).start()
+                Timer(7,task_turnHeadBack,()).start()
+                Timer(10,task_ledsOff,()).start()
+                Timer(11,task_notBusy,()).start()
 
 print("BROKER: Connecting")
 mypid = os.getpid()
