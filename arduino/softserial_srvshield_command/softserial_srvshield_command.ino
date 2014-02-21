@@ -17,7 +17,7 @@ const int servoPin1= 10;
 
 
 const int servo0Neutral = 350;    // My calibrated values for neutral positions
-const int servo1Neutral = 350;
+const int servo1Neutral = 320;
 
 // called this way, it uses the default address 0x40
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -136,7 +136,7 @@ void cmd_Servo(int servoPin,int servoPos){  // Set a servo to a position
         lastServoPos[servoPin]=servoPos;
 }
 
-void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new position, remembering the old
+void cmd_servosMove(int servo0To,int servo1To,int delayTime){    // Move the servos to a new position, remembering the old
                                                    // This commmand is special and works only on pins 0 and 1 as a pair. Change if other pins
       int increment0=(servo0To>lastServoPos[0]?+2:-2);
       int increment1=(servo1To>lastServoPos[1]?+2:-2);
@@ -150,7 +150,7 @@ void cmd_servosMove(int servo0To,int servo1To){    // Move the servos to a new p
         if(abs(servo1To-lastServoPos[1])>2){
           pwm.setPWM(1,0,lastServoPos[1]+=increment1);        
         }
-        delay(3);    // Allow the move to complete
+        delay(delayTime);    // Allow the move to complete
       }
 }
 
@@ -182,7 +182,11 @@ void loop() {
     else if(theCommand.equalsIgnoreCase("SERVOS_MOVE")){    
       int servo0To=arg1.toInt();
       int servo1To=arg2.toInt();
-      cmd_servosMove(servo0To,servo1To);
+      int delayTime=arg3.toInt();
+      if (delayTime==0){
+        delayTime=3;
+      }
+      cmd_servosMove(servo0To,servo1To,delayTime);
     }
     else if(theCommand.equalsIgnoreCase("SERVO")){   
       int servoPin=arg1.toInt();
