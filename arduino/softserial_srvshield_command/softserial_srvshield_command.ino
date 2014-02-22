@@ -92,9 +92,6 @@ void setup() {
   
   pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
   
-//  lastServoPos[0]=servo0Neutral;
-//  lastServoPos[1]=servo1Neutral;  
-
 }
 
 void cmd_blink(){
