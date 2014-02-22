@@ -97,6 +97,18 @@ void setup() {
 
 }
 
+void cmd_blink(){
+  for(int i=0;i<9;i++){
+      digitalWrite(ledPin0,HIGH);
+      digitalWrite(ledPin1,LOW); 
+      delay(50);
+      digitalWrite(ledPin0,LOW);
+      digitalWrite(ledPin1,HIGH); 
+      delay(50);
+  }
+  digitalWrite(ledPin1,LOW); 
+}
+
 void cmd_led(int ledPin, int toState){    // Set a led to a state
         char state;
       if(toState==1){          // Find out the desired state
@@ -172,6 +184,9 @@ void loop() {
       int ledPin=ledPin0+arg1.toInt(); // Find out which pin to control. 48 is the ascii code for '0'
       int toState=arg2.toInt();
       cmd_led(ledPin, toState);
+    }
+    else if(theCommand.equalsIgnoreCase("BLINK")){   
+      cmd_blink();
     }
     else if(theCommand.equalsIgnoreCase("SERVO_SLOW")){    
       int servoPin=arg1.toInt();
