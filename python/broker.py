@@ -65,6 +65,8 @@ def task_moveServos():
 def task_laugh():
     print("BROKER: LAUGH")
     pygame.mixer.music.load("../sounds/witchlaugh.wav")
+    client.publish('/arduino/1/incoming','BLINK',0)
+    client.publish('/arduino/1/incoming','LEDS_ON',0)
     pygame.mixer.music.play()
    
 def task_goodbye():
