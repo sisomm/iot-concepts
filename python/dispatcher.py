@@ -3,7 +3,6 @@
 import serial, time
 import Queue
 import os
-import thread
 import argparse
 import paho.mqtt.client as paho
 
@@ -20,27 +19,6 @@ mypid = os.getpid()
 client = paho.Client("arduino_dispatch_"+str(mypid))
 
 commands=Queue.Queue(0)
-
-def arduinoLoop():
-
-    while True:
-        if(not commands.empty()):
-            command=commands.get()
-            if(args.verbosity>0):
-                print("DISPATCHER: sending to Arduino: "+command)
-            start=time.time()
-            arduino.write(command+'|')
-
-            # wait until we get OK back
-            response=''
-            ack=False
-            while not ack:
-                response=arduino.readline()
-                if (len(response)>0):
-                    ack=True
-
-            end=time.time()
-            print('Response {} to {} took {:G} millis'.format(response,command,(end-start)*1000))
 
 def on_message(mosq, obj, msg):
     #called when we get an MQTT message that we subscribe to
@@ -71,11 +49,6 @@ def reconnect():
 
 connectall()
 
-try:
-    thread.start_new_thread( arduinoLoop, () )
-except:
-    Print('Unable to start thread.')
-
 #commands.put("servos_move,100,50")
 #commands.put("servos_move,50,100")
 #commands.put("leds_off")
@@ -83,7 +56,23 @@ except:
 
 try:
     while client.loop(300)==0:
-        pass
+        if(not commands.empty()):
+            command=commands.get()
+            if(args.verbosity>0):
+                print("DISPATCHER: sending to Arduino: "+command)
+            start=time.time()
+            arduino.write(command+'|')
+
+            # wait until we get OK back
+            response=''
+            ack=False
+            while not ack:
+                response=arduino.readline()
+                if (len(response)>0):
+                    ack=True
+
+            end=time.time()
+            print('Response {} to {} took {:G} millis'.format(response,command,(end-start)*1000))
 
 except KeyboardInterrupt:
     print "Interrupt received"
