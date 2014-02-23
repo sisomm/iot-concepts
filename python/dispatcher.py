@@ -55,7 +55,7 @@ connectall()
 #commands.put("leds_on")
 
 try:
-    while client.loop(300)==0:
+    while client.loop()==0:
         if(not commands.empty()):
             command=commands.get()
             if(args.verbosity>0):
