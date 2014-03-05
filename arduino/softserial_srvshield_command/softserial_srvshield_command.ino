@@ -94,8 +94,8 @@ void setup() {
   
 }
 
-void cmd_blink(){
-  for(int i=0;i<9;i++){
+void cmd_blink_times(int times){
+  for(int i=1;i<=times;i++){
       digitalWrite(ledPin0,HIGH);
       digitalWrite(ledPin1,LOW); 
       delay(50);
@@ -104,6 +104,11 @@ void cmd_blink(){
       delay(50);
   }
   digitalWrite(ledPin1,LOW); 
+}
+
+
+void cmd_blink(){
+  cmd_blink_times(9);
 }
 
 void cmd_led(int ledPin, int toState){    // Set a led to a state
@@ -138,6 +143,23 @@ void cmd_servoSlow(int servoPin, int servoStart, int servoStop){  // move a serv
         }  
       }
 
+}
+
+void cmd_jawMotion(int times, int do_blink){
+  for(int i=1;i<=times;i++){
+     pwm.setPWM(4, 0, 270);
+     if(do_blink>0){
+       cmd_blink_times(3);
+     } else {
+       delay(300);
+     }
+     pwm.setPWM(4, 0, 470);
+     if(do_blink>0){
+       cmd_blink_times(3);
+     } else {
+       delay(300);
+     }
+  }
 }
 
 void cmd_Servo(int servoPin,int servoPos){  // Set a servo to a position
@@ -184,6 +206,11 @@ void loop() {
     }
     else if(theCommand.equalsIgnoreCase("BLINK")){   
       cmd_blink();
+    }
+    else if(theCommand.equalsIgnoreCase("JAW_MOTION")){    
+      int times=arg1.toInt();
+      int do_blink=arg2.toInt();
+      cmd_jawMotion(times,do_blink);
     }
     else if(theCommand.equalsIgnoreCase("SERVO_SLOW")){    
       int servoPin=arg1.toInt();
