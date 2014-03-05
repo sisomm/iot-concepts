@@ -65,20 +65,26 @@ def task_moveServos():
 def task_laugh():
     print("BROKER: LAUGH")
     pygame.mixer.music.load("../sounds/witchlaugh.wav")
-    client.publish('/arduino/1/incoming','BLINK',0)
-    client.publish('/arduino/1/incoming','LEDS_ON',0)
     pygame.mixer.music.play()
+    task_jawMotion()
+    task_jawMotion()
+    task_ledsOn()
    
 def task_goodbye():
     print("BROKER: GOODBYE")
     client.publish('/arduino/1/incoming','SERVO_NEUTRAL',0)
     pygame.mixer.music.load("../sounds/despicable.wav")
     pygame.mixer.music.play()
+    task_jawMotion()
+    task_jawMotion()
 
 def task_hello():
     print("BROKER: HELLO")
     pygame.mixer.music.load("../sounds/mday.wav")
     pygame.mixer.music.play()
+    task_jawMotion()
+    task_jawMotion()
+    task_ledsOn()
 
 def task_doh():
     print("BROKER: DOH!")
@@ -93,6 +99,9 @@ def task_ledsOn():
 
 def task_turnHead():
     client.publish('/arduino/1/incoming','SERVOS_MOVE, 520, 235, 15',0)
+
+def task_jawMotion():
+    client.publish('/arduino/1/incoming','JAW_MOTION,2,1',0)
 
 def task_turnHeadBack():
     client.publish('/arduino/1/incoming','SERVOS_MOVE, 360, 320, 15',0)
