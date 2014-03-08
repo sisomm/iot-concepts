@@ -19,8 +19,9 @@ servoX=0            # Where the servo is heading (used for queued tasks)
 servoY=0
 
 def setServoCoords(msg): #Parse the sinus values and populate servo values
-    global servoX, servoY
-    servoXMin=200 # 13 for other servo;
+    global servoX, servoY # needs to be global because of delayed execution
+    
+    servoXMin=200 # 13 The commented numbers are for the old pan/tilt set
     servoXMax=520 # 133 ;
     servoXMid=360 # 73;
     servoYMin=235 # 33;

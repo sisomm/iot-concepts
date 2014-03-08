@@ -33,14 +33,12 @@ def connectall():
     arduino.open()
     client.connect(args.server)
     client.subscribe("/arduino/1/incoming", 0)
-    client.subscribe("/arduino/3/incoming", 0)
     client.on_message = on_message
 
 def disconnectall():
     print("DISPATCHER: Disconnecting")
     arduino.close()
     client.unsubscribe("/arduino/1/incoming")
-    client.unsubscribe("/arduino/3/incoming")
     client.disconnect()
 
 def reconnect():
@@ -48,11 +46,6 @@ def reconnect():
     connectall()
 
 connectall()
-
-#commands.put("servos_move,100,50")
-#commands.put("servos_move,50,100")
-#commands.put("leds_off")
-#commands.put("leds_on")
 
 try:
     while client.loop()==0:
