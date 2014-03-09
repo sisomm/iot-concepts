@@ -159,6 +159,9 @@ def on_message(mosq, obj, msg):
     elif(msg.topic=='/arduino/2/sonar'):
         arguments=msg.payload.split(':');
         distance=int(arguments[1]);
+
+        #Runs turns the head and laughs
+
         if(distance!=0 and distance<40):
             if(isBusy): print('BROKER: Sorry bussy scaring!')
             else:

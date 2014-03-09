@@ -22,6 +22,8 @@ commands=Queue.Queue(0)
 
 def on_message(mosq, obj, msg):
     #called when we get an MQTT message that we subscribe to
+    #Puts the command in the queue
+
     if(args.verbosity>2):
         print("DISPATCHER: Message received on topic "+msg.topic+" with payload "+msg.payload)
 
@@ -49,6 +51,7 @@ connectall()
 
 try:
     while client.loop()==0:
+        # Look for commands in the queue and execute them
         if(not commands.empty()):
             command=commands.get()
             if(args.verbosity>0):
