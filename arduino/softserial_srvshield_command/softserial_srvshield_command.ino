@@ -7,53 +7,53 @@
 #include <Adafruit_PWMServoDriver.h>
 #include <SoftwareSerial.h>
 
-
 const int bSize = 40; // Command Buffer size
 
-const int ledPin0 = 12;
-const int ledPin1 = 13;
-const int servoPin0= 9;
-const int servoPin1= 10;
+const int ledPin0 = 12;          // the LEDS that control the eyes
+const int ledPin1 = 13;;
 
+// The code assumes that you have servos connected at position 0 and 1 for the skull (pan/tilt),
+// and position 4 for the jaw
 
+const int jawServo = 4;           // which servo controls the jaw
 const int servo0Neutral = 350;    // My calibrated values for neutral positions
 const int servo1Neutral = 320;
 
-// called this way, it uses the default address 0x40
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+
+const int jawOpen=270;            // Values for the third servo that opens and closes the mouth
+const int jawClosed=470;
+
+
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(); // called this way, it uses the default address 0x40
 
 const int nServos=16;
-int lastServoPos[nServos];
+int lastServoPos[nServos];  // Array to remember the last servo positions
 
-//SoftSerial
-
+//SoftSerial to communicate with host over GPIO using pings 3,2
 SoftwareSerial mySerial(3, 2); // RX, TX
 
-//Commands
-
+//Commands that are populated by the serialParser. Should be in an class 
 String theCommand;
 String arg1;
 String arg2;
 String arg3;
 
 
-char buffer[bSize];  // Serial buffer
-char command[15];    // Arbitrary Value for command size
-char data1[15];      // ditto for data size
-char data2[15];
-char data3[15];
-int byteCount;
-
-void SerialParser(void) {    
+int serialParser(void) {    
   //Reads and parses commands from the serial port
   //The end of commmand token is '|', since the cr/lf is confusing on mac/raspi
+  char buffer[bSize];  // Serial buffer
+  char command[15];    // Arbitrary Value for command size
+  char data1[15];      // ditto for data size
+  char data2[15];
+  char data3[15];
+  int byteCount=0; // how many bytes that were read
 
-  byteCount = 0;
   int finished=0;
   while(finished==0){
     char c = mySerial.read();
     if(c>=0){
-      if(c=='|'){ // || byteCount==(bSize-1)){
+      if(c=='|' || byteCount==(bSize-1)) {
         finished=1;
         buffer[byteCount]=0;
       } else {
@@ -61,23 +61,23 @@ void SerialParser(void) {
       }
     }
   }
-  //mySerial.print(buffer);
-  Serial.print(buffer);
-//  byteCount =  mySerial.readBytesUntil('\n',buffer,bSize);  
-
+  
   if (byteCount  > 0) {          // Really simple parsing
     strcpy(command,strtok(buffer,","));
     strcpy(data1,strtok(NULL,","));             
     strcpy(data2,strtok(NULL,","));   
     strcpy(data3,strtok(NULL,","));   
+
+    theCommand=String(command);
+    arg1=String(data1);    
+    arg2=String(data2);
+    arg3=String(data3);  
+    mySerial.flush();
+
   }
   memset(buffer, 0, sizeof(buffer));   // Clear contents of Buffer
 
-  theCommand=String(command);
-  arg1=String(data1);   // String versions of the arguments 
-  arg2=String(data2);
-  arg3=String(data3);  
-  mySerial.flush();
+  return byteCount;
 }
 
 
@@ -94,7 +94,7 @@ void setup() {
   
 }
 
-void cmd_blink_times(int times){
+void cmd_blink_times(int times){    // blinks the "eyes" during "speech"
   for(int i=1;i<=times;i++){
       digitalWrite(ledPin0,HIGH);
       digitalWrite(ledPin1,LOW); 
@@ -106,8 +106,7 @@ void cmd_blink_times(int times){
   digitalWrite(ledPin1,LOW); 
 }
 
-
-void cmd_blink(){
+void cmd_blink(){                  // default
   cmd_blink_times(9);
 }
 
@@ -145,21 +144,22 @@ void cmd_servoSlow(int servoPin, int servoStart, int servoStop){  // move a serv
 
 }
 
-void cmd_jawMotion(int times, int do_blink){
+void cmd_jawMotion(int times, int do_blink){    // moves the jaw in the skull
   for(int i=1;i<=times;i++){
-     pwm.setPWM(4, 0, 270);
+     pwm.setPWM(jawServo, 0, jawOpen);
      if(do_blink>0){
        cmd_blink_times(3);
      } else {
        delay(300);
      }
-     pwm.setPWM(4, 0, 470);
+     pwm.setPWM(jawServo, 0, jawClosed);
      if(do_blink>0){
        cmd_blink_times(3);
      } else {
        delay(300);
      }
   }
+  lastServoPos[jawServo]=jawClosed;
 }
 
 void cmd_Servo(int servoPin,int servoPos){  // Set a servo to a position
@@ -173,7 +173,6 @@ void cmd_servosMove(int servo0To,int servo1To,int delayTime){    // Move the ser
       int increment1=(servo1To>lastServoPos[1]?+2:-2);
 
       int repetitions=max(abs(servo0To-lastServoPos[0]),abs(servo1To-lastServoPos[1]))/2;  // We move servos two steps at a time
-      //Serial.println(repetitions);
       for(int i=0;i<repetitions;i++){
         if(abs(servo0To-lastServoPos[0])>2){            // Stop moving the servo that has reached the position
           pwm.setPWM(0,0,lastServoPos[0]+=increment0);
@@ -188,9 +187,9 @@ void cmd_servosMove(int servo0To,int servo1To,int delayTime){    // Move the ser
 void loop() {
 
   //Implements a ping-pong protocol with the other end. All commands must be acknowledged
-  SerialParser();
+  //TODO make the code more robust and check for valid parameters
 
-  if (byteCount  > 0) {
+  if (serialParser() > 0) {
     if(theCommand.equalsIgnoreCase("LEDS_ON")){
       digitalWrite(ledPin0,HIGH); 
       digitalWrite(ledPin1,HIGH); 
@@ -200,7 +199,7 @@ void loop() {
       digitalWrite(ledPin1,LOW); 
     }
     else if(theCommand.equalsIgnoreCase("LED")){   
-      int ledPin=ledPin0+arg1.toInt(); // Find out which pin to control. 48 is the ascii code for '0'
+      int ledPin=ledPin0+arg1.toInt(); 
       int toState=arg2.toInt();
       cmd_led(ledPin, toState);
     }
@@ -236,6 +235,8 @@ void loop() {
       cmd_Servo(0,servo0Neutral);
       cmd_Servo(1,servo1Neutral);
     }
+    
+    //these statements allow the host to understand that the command is finished
     Serial.println(theCommand);
     mySerial.print(theCommand);
     mySerial.print('\n');
