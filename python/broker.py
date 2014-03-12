@@ -22,11 +22,11 @@ def setServoCoords(msg): #Parse the sinus values and populate servo values
     global servoX, servoY # needs to be global because of delayed execution
     
     servoXMin=200 # 13 The commented numbers are for the old pan/tilt set
-    servoXMax=520 # 133 ;
-    servoXMid=360 # 73;
-    servoYMin=235 # 33;
-    servoYMax=520 # 80;
-    servoYMid=320 # 65;
+    servoXMax=520 # 133 
+    servoXMid=360 # 73
+    servoYMin=235 # 33
+    servoYMax=520 # 80
+    servoYMid=320 # 65
     
     l = []
     for t in msg.split(','):
@@ -38,16 +38,16 @@ def setServoCoords(msg): #Parse the sinus values and populate servo values
 
 #You need to adjust the code below to your own servo
 
-    X=int(servoXMid-l[0]*160)         # 90 was old factor. Allow for calibration
-    if(X<servoXMin):                 #The skull is heavy. not too big turns 
+    X=int(servoXMid-l[0]*180)        # Allow for calibration
+    if(X<servoXMin):                 # The skull is heavy. not too big turns 
         servoX=servoXMin
     elif(X>servoXMax):
         servoX=servoXMax
     else:
         servoX=X
 
-    Y=int(servoYMid-l[1]*160-20)         # 90 was old, Allow for calibration
-    if(Y<servoYMin):                 #The skull is heavy. Not too big pitch
+    Y=int(servoYMid-l[1]*180-20)     # I subtract 20 since the skull is mounted with a low pitch
+    if(Y<servoYMin):                 # The skull is heavy. Not too big pitch
         servoY=servoYMin
     elif(Y>servoYMax):
         servoY=servoYMax
