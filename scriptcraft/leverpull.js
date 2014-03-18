@@ -8,12 +8,11 @@ var client = mqtt.client('tcp://192.168.1.16:1883'); // local host is default. O
 client.connect();
 
 var lastSeen=new Date(); // to remember the last seen time so that we don't spam the Arduino
-var isPresent = false;	 // is the player close to the skull?
 
 var players=server.onlinePlayers;
 var lastLoc=  new org.bukkit.Location(players[0].world, 0, 0, 0); // Empty locaiton
 																  // Now we must have one player online
-var nearby=false;												  // is in front of skull
+var nearby=false;												  // The player isin front of the skull
 
 
 //Subscribe to changes in the state of the Arduino
@@ -21,7 +20,7 @@ client.subscribe('/arduino/1/status');
 
 var player; // To remember who pulled the switch
 
-//Detect if a the player pulled one of the switches in front of the skull
+// Detect if a the player pulled one of the switches in front of the skull
 events.on('player.PlayerInteractEvent', function (listener, event) { 
 	var block = event.getClickedBlock(); // Which block?
 	var type = block.getType();			 // What type is it?
@@ -55,7 +54,7 @@ events.on('player.PlayerInteractEvent', function (listener, event) {
 events.on('player.PlayerMoveEvent', function (listener, event) { 
 	var loc=event.player.location;
 
-	// The position of the skull: The origin for the face tracker 	
+	// The position of the skull & The origin for the face tracker 	
 	var fromX=-250;
 	var fromY=70.5;   // Actually 71, but we want the skull to look straight forward
 	var fromZ=211;
@@ -74,12 +73,13 @@ events.on('player.PlayerMoveEvent', function (listener, event) {
 		return;
 	}
 
+	// The distance from the skull to the player
 	var dX=loc.x-fromX;
 	var dY=loc.y-fromY;
 	var dZ=loc.z-fromZ;
 	var distance=Math.sqrt(dY*dY+dX*dX+dZ*dZ);
 
-	var sonarPos='250,72,211';			// Change to where you put your skull/sonar
+	var sonarPos='250,72,211';	// For MQTT topic. Change to where you put your skull/sonar
 
 	// Find out how much he moved since the last time
 	var movedX=lastLoc.x-loc.x;8
