@@ -144,6 +144,18 @@ void cmd_servoSlow(int servoPin, int servoStart, int servoStop){  // move a serv
 
 }
 
+void cmd_jawPosition(int pos){    // moves the jaw in the skull to open (1) or shut(0)
+  int thePosition;
+  if(pos>0) {
+    thePosition=jawOpen;
+  } else {
+    thePosition=jawClosed;
+  }   
+  pwm.setPWM(jawServo, 0, thePosition);
+  lastServoPos[jawServo]=thePosition;
+}
+
+
 void cmd_jawMotion(int times, int do_blink){    // moves the jaw in the skull
   for(int i=1;i<=times;i++){
      pwm.setPWM(jawServo, 0, jawOpen);
@@ -210,6 +222,10 @@ void loop() {
       int times=arg1.toInt();
       int do_blink=arg2.toInt();
       cmd_jawMotion(times,do_blink);
+    }
+    else if(theCommand.equalsIgnoreCase("JAW_POSITION")){    
+      int pos=arg1.toInt();
+      cmd_jawPosition(pos);
     }
     else if(theCommand.equalsIgnoreCase("SERVO_SLOW")){    
       int servoPin=arg1.toInt();
