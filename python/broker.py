@@ -99,8 +99,11 @@ def task_ledsOff():
 def task_ledsOn():
     client.publish('/arduino/1/incoming','LEDS_ON',0)
 
-def task_turnHead():
-    client.publish('/arduino/1/incoming','SERVOS_MOVE, 520, 235, 15',0)
+def task_turnLeft():
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 520, 235, 7',0)
+
+def task_turnRight():
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 200, 235, 7',0)
 
 def task_singleJawMotion():
     client.publish('/arduino/1/incoming','JAW_MOTION,1,1',0)
@@ -109,7 +112,7 @@ def task_jawMotion():
     client.publish('/arduino/1/incoming','JAW_MOTION,2,1',0)
 
 def task_turnHeadBack():
-    client.publish('/arduino/1/incoming','SERVOS_MOVE, 360, 320, 15',0)
+    client.publish('/arduino/1/incoming','SERVOS_MOVE, 360, 320, 7',0)
 
 def task_notBusy():
     global isBusy
@@ -168,11 +171,11 @@ def on_message(mosq, obj, msg):
                 isBusy=True
                 print('BROKER: We turn skull')
                 task_ledsOn()
-                Timer(3,task_turnHead,()).start()
-                Timer(5,task_laugh,()).start()
-                Timer(7,task_turnHeadBack,()).start()
-                Timer(10,task_ledsOff,()).start()
-                Timer(11,task_notBusy,()).start()
+                Timer(1,task_turnLeft,()).start()
+                Timer(3,task_laugh,()).start()
+                Timer(5,task_turnHeadBack,()).start()
+                Timer(8,task_ledsOff,()).start()
+                Timer(10,task_notBusy,()).start()
 
 print("BROKER: Connecting")
 mypid = os.getpid()
