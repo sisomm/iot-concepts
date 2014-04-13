@@ -1,3 +1,3 @@
 while true; do
-python ./dispatcher.py -v 1 -s 192.168.1.16 -p /dev/ttyAMA0
+python ./dispatcher.py -v 2 -s localhost -p /dev/ttyAMA0
 done
