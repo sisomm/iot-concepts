@@ -24,7 +24,7 @@ def on_message(mosq, obj, msg):
     #called when we get an MQTT message that we subscribe to
     #Puts the command in the queue
 
-    if(args.verbosity>2):
+    if(args.verbosity>1):
         print("DISPATCHER: Message received on topic "+msg.topic+" with payload "+msg.payload)
 
     arduinoCommand=msg.payload

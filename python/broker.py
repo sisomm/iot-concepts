@@ -68,7 +68,6 @@ def task_laugh():
     pygame.mixer.music.load("../sounds/witchlaugh.wav")
     pygame.mixer.music.play()
     task_jawMotion()
-    task_jawMotion()
     task_ledsOn()
    
 def task_goodbye():
@@ -76,7 +75,6 @@ def task_goodbye():
     client.publish('/arduino/1/incoming','SERVO_NEUTRAL',0)
     pygame.mixer.music.load("../sounds/despicable.wav")
     pygame.mixer.music.play()
-    task_jawMotion()
     task_jawMotion()
 
 def task_hello():
@@ -165,13 +163,13 @@ def on_message(mosq, obj, msg):
 
         #Runs turns the head and laughs
 
-        if(distance!=0 and distance<40):
+        if(distance!=0 and distance<20):
             if(isBusy): print('BROKER: Sorry bussy scaring!')
             else:
                 isBusy=True
                 print('BROKER: We turn skull')
                 task_ledsOn()
-                Timer(1,task_turnLeft,()).start()
+                Timer(1,task_turnRight,()).start()
                 Timer(3,task_laugh,()).start()
                 Timer(5,task_turnHeadBack,()).start()
                 Timer(8,task_ledsOff,()).start()

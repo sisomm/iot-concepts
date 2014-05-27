@@ -25,13 +25,13 @@ def task_hello():
     pygame.mixer.music.play()
 
 def task_doh():
-    print("BROKER: DOH!")
+    print("SOUNDPLAYER DOH!")
     pygame.mixer.music.load("../sounds/doh.wav") 
     pygame.mixer.music.play()
 
 def on_message(mosq, obj, msg):
 
-        print("BROKER: Message received on topic "+msg.topic+" with payload "+msg.payload)
+        print("SOUNDPLAYER: Message received on topic "+msg.topic+" with payload "+msg.payload)
         if(msg.payload=="GOODBYE"):
             task_goodbye()
 
@@ -44,7 +44,7 @@ def on_message(mosq, obj, msg):
         if(msg.payload=="LAUGH"):
             task_laugh()
 
-print("BROKER: Connecting")
+print("SOUNDPLAYER: Connecting")
 mypid = os.getpid()
 client = paho.Client("sound_broker_"+str(mypid))
 client.connect(args.server)
@@ -59,7 +59,7 @@ try:
         pass
 
 except KeyboardInterrupt:
-    print('BROKER: Interrupt')
+    print('SOUNDPLAYER: Interrupt')
     client.unsubscribe("/raspberry/1/incoming")
     client.disconnect()
 
