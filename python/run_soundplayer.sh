@@ -1,1 +1,1 @@
-python ./soundplayer.py -v 1 -s 192.168.1.16 
+python ./soundplayer.py -v 1 -s localhost 
