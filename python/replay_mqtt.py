@@ -24,10 +24,8 @@ try:
         print row[2]
         time.sleep(float(row[0]))
         print('publishing {} to topic {}'.format(row[2],row[1]))
-        client.publish(row[1],row[2],0)
+        client.publish(row[1],row[2].strip('\n'),0)
     f.close()
-    client.disconnect()
 
 except KeyboardInterrupt:
     print "Interrupt received"
-    client.disconnnect()
