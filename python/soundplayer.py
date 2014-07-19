@@ -32,6 +32,7 @@ def task_doh():
 def on_message(mosq, obj, msg):
 
         print("SOUNDPLAYER: Message received on topic "+msg.topic+" with payload "+msg.payload)
+        print(len(msg.payload));
         if(msg.payload=="GOODBYE"):
             task_goodbye()
 

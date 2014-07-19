@@ -14,7 +14,6 @@ args = parser.parse_args()
 mypid = os.getpid()
 client = paho.Client("record_mqtt"+str(mypid))
 previous=time.time()
-print(len(args.topic))
 
 def on_message(mosq, obj, msg):
     global previous
