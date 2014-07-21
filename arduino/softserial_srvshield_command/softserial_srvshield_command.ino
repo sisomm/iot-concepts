@@ -5,7 +5,7 @@
 //#include <Servo.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 
 const int bSize = 40; // Command Buffer size
 
@@ -30,7 +30,7 @@ const int nServos=16;
 int lastServoPos[nServos];  // Array to remember the last servo positions
 
 //SoftSerial to communicate with host over GPIO using pings 3,2
-SoftwareSerial mySerial(3, 2); // RX, TX
+//SoftwareSerial mySerial(3, 2); // RX, TX
 
 //Commands that are populated by the serialParser. Should be in an class 
 String theCommand;
@@ -51,7 +51,7 @@ int serialParser(void) {
 
   int finished=0;
   while(finished==0){
-    char c = mySerial.read();
+    char c = Serial.read();
     if(c>=0){
       if(c=='|' || byteCount==(bSize-1)) {
         finished=1;
@@ -72,7 +72,7 @@ int serialParser(void) {
     arg1=String(data1);    
     arg2=String(data2);
     arg3=String(data3);  
-    mySerial.flush();
+    //mySerial.flush();
 
   }
   memset(buffer, 0, sizeof(buffer));   // Clear contents of Buffer
@@ -83,7 +83,7 @@ int serialParser(void) {
 
 void setup() {
   Serial.begin(9600);
-  mySerial.begin(9600);
+//  mySerial.begin(9600);
 
   pinMode(ledPin0,OUTPUT);
   pinMode(ledPin1,OUTPUT);
@@ -254,9 +254,9 @@ void loop() {
     
     //these statements allow the host to understand that the command is finished
     Serial.println(theCommand);
-    mySerial.print(theCommand);
-    mySerial.print('\n');
-    mySerial.flush();
+//    mySerial.print(theCommand);
+//    mySerial.print('\n');
+//    mySerial.flush();
   }
 
 }
