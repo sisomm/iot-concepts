@@ -87,6 +87,9 @@ void setup() {
 
   pinMode(ledPin0,OUTPUT);
   pinMode(ledPin1,OUTPUT);
+  
+  lastServoPos[0]=servo0Neutral;
+  lastServoPos[1]=servo1Neutral;
 
   pwm.begin();
   
