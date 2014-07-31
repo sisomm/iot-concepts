@@ -17,13 +17,9 @@ client.connect(args.server)
 try:
     f=open(args.file,"r")
     for line in f:
-        print line
         row=line.split('|')
-        print row[0]
-        print row[1]
-        print row[2]
         time.sleep(float(row[0]))
-        print('publishing {} to topic {}'.format(row[2],row[1]))
+        print('publishing {} to topic {}'.format(row[2].strip('\n'),row[1]))
         client.publish(row[1],row[2].strip('\n'),0)
     f.close()
 
