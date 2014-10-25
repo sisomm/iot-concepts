@@ -3,7 +3,7 @@
 
 int receiver = 11;
 
-IRrecv irrecv(receiver);
+IRrecv irrecv(receive r);
 decode_results results;
 void setup(){
   Serial.begin(9600);
