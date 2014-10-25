@@ -9,10 +9,12 @@ import paho.mqtt.client as paho
 parser = argparse.ArgumentParser()
 parser.add_argument("-p","--port", help="The port where the Arduino is attached")
 parser.add_argument("-s","--server", default="127.0.0.1", help="The IP address of the MQTT server")
-parser.add_argument("-t","--topic", default="", help="The topic name to report to")
 parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1],  default=0,
                     help="increase output verbosity")
 args = parser.parse_args()
+
+remoteTopic="/arduino/2/remote"
+sonarTopic="/arduino/2/sonar"
 
 arduino = serial.Serial(args.port, 9600, timeout=1)
 arduino.open()
@@ -35,7 +37,12 @@ try:
         if(len(response)>0):
             if(args.verbosity>0):
                 print("REPORTER: Arduino says:"+response.strip())
-            client.publish(args.topic,response.strip() ,0)
+            if(response.startswith("Ping")):
+                topic=sonarTopic
+            else:
+                topic=remoteTopic
+
+            client.publish(topic,response.strip() ,0)
 
 except KeyboardInterrupt:
     print "Interrupt received"
