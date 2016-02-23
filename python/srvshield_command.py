@@ -7,6 +7,7 @@ import os
 import sys
 import argparse
 import paho.mqtt.client as paho
+import RPi.GPIO as GPIO
 
 
 # Initialise the PWM device using the default address
@@ -102,14 +103,42 @@ def jawPosition(position):
     else:
         servoMove(jawServo,jawOpen)        
 
-def jawMotion(times,blink):
-    for i in range(1,times):
-        print "open"
+def jawMotion(times,doBlink):
+    for i in range(times):
         jawPosition(1)
-        time.sleep(0.3)
-        print "close"
+        if(doBlink==0):
+            time.sleep(0.3)
+        else:
+            blink(3)
+        
         jawPosition(0)
-        time.sleep(0.3)
+        if(blink==0):
+            time.sleep(0.3)
+        else:
+            blink(3)
+
+def led(led,onOff):
+    if(led==0):
+        pin=18
+    else:
+        pin=23
+
+    if(onOff==0):
+        state=GPIO.LOW
+    else:
+        state=GPIO.HIGH
+
+    GPIO.output(pin,state)
+
+def blink(times):
+    for i in range(times):
+        led(0,1)
+        led(1,1)
+        time.sleep(0.05)
+        led(0,0)
+        led(1,0)
+        time.sleep(0.05)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s","--server", default="127.0.0.1", help="The IP address of the MQTT server")
@@ -118,11 +147,17 @@ parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2],  default=0
 args = parser.parse_args()
 
 mypid = os.getpid()
-client = paho.Client("arduino_dispatch_"+str(mypid))
+client = paho.Client("servoshield_dispatch"+str(mypid))
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(18,GPIO.OUT)
+GPIO.setup(23,GPIO.OUT)
 
 commands=Queue.Queue(0)
 connectall()
 pwm.setPWMFreq(60)                        # Set frequency to 60 Hz
+servosNeutral()
 
 try:
     while client.loop()==0:
@@ -139,6 +174,14 @@ try:
                 servosMove(int(action[1]),int(action[2]),int(action[3]))
             elif(action[0]=='JAW_MOTION'):
                 jawMotion(int(action[1]),int(action[2]))
+            elif(action[0]=='LEDS_ON'):
+                led(0,1)
+                led(1,1)
+            elif(action[0]=='LEDS_OFF'):
+                led(0,0)
+                led(1,0)
+            elif(action[0]=='BLINK'):
+                blink(int(action[1]))
 
 # except KeyboardInterrupt:
 except:
