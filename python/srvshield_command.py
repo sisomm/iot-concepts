@@ -70,8 +70,18 @@ def reconnect():
     connectall()
 
 def servoMove(servo,position):
-    pwm.setPWM(servo,0,position)
-    lastServoPos[servo]=position
+
+    if (servo==0):
+        safePos= servoXMin if position < servoXMin else servoXMax if position > servoXMax else position
+    elif (servo==1):
+        safePos= servoYMin if position < servoYMin else servoYMax if position > servoYMax else position
+    elif (servo==4):
+        safePos= jawOpen if position < jawOpen else jawClosed if position > jawClosed else position
+    else: 
+        safePos=position
+
+    pwm.setPWM(servo,0,safePos)
+    lastServoPos[servo]=safePos
 
 def servosNeutral():
     servoMove(0,servoXMid)
@@ -94,7 +104,6 @@ def servosMove(servo0To, servo1To,delatyTime):
             servoMove(0,lastServoPos[0]+increment0)
         if(abs(servo1To-lastServoPos[1])>2):
             servoMove(1,lastServoPos[1]+increment1)
-        print delatyTime
         time.sleep(delatyTime/1000)
 
 def jawPosition(position):
