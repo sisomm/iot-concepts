@@ -63,10 +63,9 @@ def detect_and_draw(img, cascade):
                 midFaceX = x1+((x2-x1)/2)
                 midFaceY = y1+((y2-y1)/2)
                 facenum=facenum+1;
-                client.publish(topic+str(facenum)+"/x",str(midFaceX),0)
-                client.publish(topic+str(facenum)+"/y",str(midFaceY),0)
+                client.publish(topic+str(facenum),str(midFaceX)+","+str(midFaceY),0)
 
-		print topic+str(facenum)+"/x",topic+str(facenum)+"/y"
+		print topic+str(facenum),str(midFaceX)+","+str(midFaceY)
 
     cv.ShowImage("result", img)
 
