@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     parser = OptionParser(usage = "usage: %prog [options] [filename|camera_index]")
     parser.add_option("-c", "--cascade", action="store", dest="cascade", type="str", help="Haar cascade file, default %default", default = "haarcascade_frontalface_alt.xml")
-    parser.add_option("-s", "--server", action="store", dest="server", type="str", help="MQTT server %default", default = "127.0.0.1")
+    parser.add_option("-s", "--server", action="store", dest="server", type="str", help="MQTT server %default", default = "localhost")
     (options, args) = parser.parse_args()
 
     print("Facedect: Connecting")
