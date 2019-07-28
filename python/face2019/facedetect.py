@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 '''
-face detection using haar cascades
+face detection using haar cascades. Simens 2019 Edition with MQTT. Based on
+the examples that came with opencv
 
 USAGE:
     facedetect.py [--cascade <cascade_fn>] [--nested-cascade <cascade_fn>] [<video_source>]
@@ -10,8 +11,10 @@ USAGE:
 # Python 2/3 compatibility
 from __future__ import print_function
 
+import os, sys
 import numpy as np
 import cv2 as cv
+import paho.mqtt.client as paho
 
 # local modules
 from video import create_capture
@@ -42,6 +45,13 @@ if __name__ == '__main__':
     args = dict(args)
     cascade_fn = args.get('--cascade', "haarcascade_frontalface_alt.xml")
     nested_fn  = args.get('--nested-cascade', "haarcascade_eye.xml")
+    server = args.get('--server', "localhost")
+    
+    print("Facedect: Connecting")
+    mypid = os.getpid()
+    client = paho.Client("facedect_"+str(mypid))
+    client.connect(server)
+    topic="/raspberry/1/face/"
 
     cascade = cv.CascadeClassifier(cv.samples.findFile(cascade_fn))
     nested = cv.CascadeClassifier(cv.samples.findFile(nested_fn))
@@ -58,11 +68,19 @@ if __name__ == '__main__':
         vis = img.copy()
         draw_rects(vis, rects, (0, 255, 0))
         if not nested.empty():
+            facenum=0
             for x1, y1, x2, y2 in rects:
                 roi = gray[y1:y2, x1:x2]
                 vis_roi = vis[y1:y2, x1:x2]
                 subrects = detect(roi.copy(), nested)
                 draw_rects(vis_roi, subrects, (255, 0, 0))
+                
+                midFaceX = x1+((x2-x1)/2)
+                midFaceY = y1+((y2-y1)/2)
+                facenum=facenum+1;
+                client.publish(topic+str(facenum),str(midFaceX)+","+str(midFaceY),0)
+
+                
         dt = clock() - t
 
         draw_str(vis, (20, 20), 'time: %.1f ms' % (dt*1000))
