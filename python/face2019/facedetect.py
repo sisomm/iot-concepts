@@ -84,6 +84,7 @@ if __name__ == '__main__':
         dt = clock() - t
 
         draw_str(vis, (20, 20), 'time: %.1f ms' % (dt*1000))
+        draw_str(vis, (20, 40), "Approved by KEITH, the friendly skull")
         cv.imshow('facedetect', vis)
 
         if cv.waitKey(5) == 27:
