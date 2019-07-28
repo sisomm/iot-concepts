@@ -5,7 +5,7 @@ face detection using haar cascades. Simens 2019 Edition with MQTT. Based on
 the examples that came with opencv
 
 USAGE:
-    facedetect.py [--cascade <cascade_fn>] [--nested-cascade <cascade_fn>] [<video_source>]
+    facedetect.py[--server <MQTT server>]   [--cascade <cascade_fn>] [--nested-cascade <cascade_fn>] [<video_source>]
 '''
 
 # Python 2/3 compatibility
