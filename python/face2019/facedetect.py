@@ -47,7 +47,6 @@ if __name__ == '__main__':
     nested_fn  = args.get('--nested-cascade', "haarcascade_eye.xml")
     server = args.get('--server', "localhost")
     
-    print("Facedect: Connecting")
     mypid = os.getpid()
     client = paho.Client("facedect_"+str(mypid))
     client.connect(server)
@@ -90,3 +89,4 @@ if __name__ == '__main__':
         if cv.waitKey(5) == 27:
             break
     cv.destroyAllWindows()
+    client.disconnect()
