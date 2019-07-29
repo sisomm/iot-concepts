@@ -11,7 +11,7 @@ USAGE:
 # Python 2/3 compatibility
 from __future__ import print_function
 
-import os, sys
+import os, sys, time
 import numpy as np
 import cv2 as cv
 import paho.mqtt.client as paho
@@ -62,6 +62,8 @@ if __name__ == '__main__':
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         gray = cv.equalizeHist(gray)
 
+	#the sleep command eases the load
+        time.sleep(0.1)
         t = clock()
         rects = detect(gray, cascade)
         vis = img.copy()
