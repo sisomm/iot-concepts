@@ -42,6 +42,7 @@ if __name__ == '__main__':
     parser.add_argument('--cascade', help="Haar cascade file", default="haarcascade_frontalface_alt.xml")
     parser.add_argument('--nested_cascade', help="Inner Haar cascade file", default="haarcascade_eye.xml")
     parser.add_argument('--server', help="MQTT server", default="localhost")
+    parser.add_argument('--topic', help="MQTT base topic path", default="/raspberry/1/face/")
     parser.add_argument('--pause', type=int, help="Pause between captures in millis", default=0)
     parser.add_argument('--video_source', help="Camera index, file, or device", default="0")    
     options=parser.parse_args()
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     mypid = os.getpid()
     client = paho.Client("facedect_"+str(mypid))
     client.connect(server)
-    topic="/raspberry/1/face/"
+    topic = options.topic
 
     cascade = cv.CascadeClassifier(cv.samples.findFile(cascade_fn))
     nested = cv.CascadeClassifier(cv.samples.findFile(nested_fn))
