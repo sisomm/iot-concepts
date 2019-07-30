@@ -1,12 +1,5 @@
-#!/usr/bin/env python
-
-'''
-face detection using haar cascades. Simens 2019 Edition with MQTT. Based on
-the examples that came with opencv
-
-USAGE:
-    facedetect.py[--server <MQTT server>] [--cascade <cascade_fn>] [--nested_cascade <cascade_fn>] [--video_source <video_source>] [--pause <pause_miliseconds>]
-'''
+# face detection using haar cascades. Simens 2019 Edition with MQTT. Based on
+# the examples that came with opencv
 
 # Python 2/3 compatibility
 from __future__ import print_function
@@ -36,7 +29,6 @@ def draw_rects(img, rects, color):
 
 if __name__ == '__main__':
     import sys
-    print(__doc__)
 
     parser=argparse.ArgumentParser(prog="facedetect.py")
     parser.add_argument('--cascade', help="Haar cascade file", default="haarcascade_frontalface_alt.xml")
