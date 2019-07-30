@@ -1,9 +1,6 @@
 # face detection using haar cascades. Simens 2019 Edition with MQTT. Based on
 # the examples that came with opencv
 
-# Python 2/3 compatibility
-from __future__ import print_function
-
 import os, sys, time
 import argparse
 import numpy as np
