@@ -5,13 +5,14 @@ face detection using haar cascades. Simens 2019 Edition with MQTT. Based on
 the examples that came with opencv
 
 USAGE:
-    facedetect.py[--server <MQTT server>]   [--cascade <cascade_fn>] [--nested-cascade <cascade_fn>] [<video_source>]
+    facedetect.py[--server <MQTT server>] [--cascade <cascade_fn>] [--nested_cascade <cascade_fn>] [--video_source <video_source>] [--pause <pause_miliseconds>]
 '''
 
 # Python 2/3 compatibility
 from __future__ import print_function
 
 import os, sys, time
+import argparse
 import numpy as np
 import cv2 as cv
 import paho.mqtt.client as paho
@@ -34,18 +35,26 @@ def draw_rects(img, rects, color):
         cv.rectangle(img, (x1, y1), (x2, y2), color, 2)
 
 if __name__ == '__main__':
-    import sys, getopt
+    import sys
     print(__doc__)
 
-    args, video_src = getopt.getopt(sys.argv[1:], '', ['cascade=', 'nested-cascade='])
+    parser=argparse.ArgumentParser(prog="facedetect.py")
+    parser.add_argument('--cascade', help="Haar cascade file", default="haarcascade_frontalface_alt.xml")
+    parser.add_argument('--nested_cascade', help="Inner Haar cascade file", default="haarcascade_eye.xml")
+    parser.add_argument('--server', help="MQTT server", default="localhost")
+    parser.add_argument('--pause', type=int, help="Pause between captures in millis", default=0)
+    parser.add_argument('--video_source', help="Camera index, file, or device", default="0")    
+    options=parser.parse_args()
+
     try:
-        video_src = video_src[0]
+        video_src = int(options.video_source)
     except:
-        video_src = 0
-    args = dict(args)
-    cascade_fn = args.get('--cascade', "haarcascade_frontalface_alt.xml")
-    nested_fn  = args.get('--nested-cascade', "haarcascade_eye.xml")
-    server = args.get('--server', "localhost")
+        video_src = options.video_source
+
+    cascade_fn = options.cascade
+    nested_fn  = options.nested_cascade
+    server = options.server
+    pause = options.pause
     
     mypid = os.getpid()
     client = paho.Client("facedect_"+str(mypid))
@@ -57,13 +66,16 @@ if __name__ == '__main__':
 
     cam = create_capture(video_src, fallback='synth:bg={}:noise=0.05'.format(cv.samples.findFile('lena.jpg')))
 
+    totalTime=0.0
+    iterations=0
     while True:
         ret, img = cam.read()
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         gray = cv.equalizeHist(gray)
 
-	#the sleep command eases the load
-        time.sleep(0.1)
+    #the sleep command eases the load
+        if pause > 0:
+            time.sleep(pause/1000)
         t = clock()
         rects = detect(gray, cascade)
         vis = img.copy()
@@ -83,7 +95,8 @@ if __name__ == '__main__':
 
                 
         dt = clock() - t
-
+        totalTime=totalTime+dt
+        iterations=iterations+1
         draw_str(vis, (20, 20), 'time: %.1f ms' % (dt*1000))
         draw_str(vis, (20, 40), "Approved by KEITH, the friendly skull")
         cv.imshow('facedetect', vis)
@@ -92,3 +105,4 @@ if __name__ == '__main__':
             break
     cv.destroyAllWindows()
     client.disconnect()
+    print("Average execution time: %.1f " % ((totalTime/iterations)*1000))
