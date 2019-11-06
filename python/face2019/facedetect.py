@@ -78,8 +78,8 @@ if __name__ == '__main__':
                 subrects = detect(roi.copy(), nested)
                 draw_rects(vis_roi, subrects, (255, 0, 0))
                 
-                midFaceX = x1+((x2-x1)/2)
-                midFaceY = y1+((y2-y1)/2)
+                midFaceX = int(x1+((x2-x1)/2))
+                midFaceY = int(y1+((y2-y1)/2))
                 facenum=facenum+1;
                 client.publish(topic+str(facenum),str(midFaceX)+","+str(midFaceY),0)
 
