@@ -1,16 +1,19 @@
+# Post faces to dropbox. Intended to function as door watch 
 # face detection using haar cascades. Simens 2019 Edition with MQTT. Based on
 # the examples that came with opencv
 
-import os, sys, time
+import os, sys, datetime
 import argparse
 import numpy as np
 import cv2 as cv
 import paho.mqtt.client as paho
+import dropbox
+from dropbox.files import WriteMode
+from dropbox.exceptions import ApiError, AuthError
 
 # local modules
 from video import create_capture
 from common import clock, draw_str
-
 
 def detect(img, cascade):
     rects = cascade.detectMultiScale(img, scaleFactor=1.3, minNeighbors=4, minSize=(30, 30),
@@ -25,16 +28,21 @@ def draw_rects(img, rects, color):
         cv.rectangle(img, (x1, y1), (x2, y2), color, 2)
 
 if __name__ == '__main__':
-    import sys
+    TOKEN=''
 
-    parser=argparse.ArgumentParser(prog="facedetect.py")
+    parser=argparse.ArgumentParser(prog="reportface.py")
     parser.add_argument('--cascade', help="Haar cascade file", default="haarcascade_frontalface_alt.xml")
     parser.add_argument('--nested_cascade', help="Inner Haar cascade file", default="haarcascade_eye.xml")
     parser.add_argument('--server', help="MQTT server", default="localhost")
-    parser.add_argument('--topic', help="MQTT base topic path", default="/raspberry/1/face/")
+    parser.add_argument('--topic', help="MQTT base topic path", default="/reportface/face/")
     parser.add_argument('--pause', type=int, help="Pause between captures in millis", default=0)
     parser.add_argument('--video_source', help="Camera index, file, or device", default="0")    
+    parser.add_argument('--token', help='Access token ')
     options=parser.parse_args()
+
+    if not options.token:
+        print('--token is mandatory')
+        sys.exit(2)
 
     try:
         video_src = int(options.video_source)
@@ -45,6 +53,7 @@ if __name__ == '__main__':
     nested_fn  = options.nested_cascade
     server = options.server
     pause = options.pause
+
     
     mypid = os.getpid()
     client = paho.Client("facedect_"+str(mypid))
@@ -55,9 +64,11 @@ if __name__ == '__main__':
     nested = cv.CascadeClassifier(cv.samples.findFile(nested_fn))
 
     cam = create_capture(video_src, fallback='synth:bg={}:noise=0.05'.format(cv.samples.findFile('lena.jpg')))
+    
+    dbx = dropbox.Dropbox(options.token)
+    #initiate time variable so that we can get first face reported
+    t_lastface= datetime.datetime(2009, 1, 6, 15, 8, 24, 0)
 
-    totalTime=0.0
-    iterations=0
     while True:
         ret, img = cam.read()
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -66,12 +77,12 @@ if __name__ == '__main__':
     #the sleep command eases the load
         if pause > 0:
             time.sleep(pause/1000)
-        t = clock()
         rects = detect(gray, cascade)
         vis = img.copy()
         draw_rects(vis, rects, (0, 255, 0))
+        facenum=0
+        
         if not nested.empty():
-            facenum=0
             for x1, y1, x2, y2 in rects:
                 roi = gray[y1:y2, x1:x2]
                 vis_roi = vis[y1:y2, x1:x2]
@@ -81,18 +92,28 @@ if __name__ == '__main__':
                 midFaceX = int(x1+((x2-x1)/2))
                 midFaceY = int(y1+((y2-y1)/2))
                 facenum=facenum+1;
-                client.publish(topic+str(facenum),str(midFaceX)+","+str(midFaceY),0)
+        if  len(rects)>0:
+            t_thisface=datetime.datetime.now()
+            minutes = (t_thisface-t_lastface).total_seconds() /60
+            t_lastface=t_thisface
+            if minutes >= 1:
+                timestring=t_thisface.strftime("%Y%m%d_%H%M%S")
+                client.publish(topic,timestring)
+                print("Face at the door")
+                cv.imwrite("/home/pi/face.jpg",img)
+                f=open("/home/pi/face.jpg","rb")
+                try: 
+                   res=dbx.files_upload(f.read(),"/face"+"_"+timestring+".jpg",mode=WriteMode("overwrite"))                  
+                except dropbox.exceptions.ApiError as err:
+                    print('*** API error', err)
 
-                
-        dt = clock() - t
-        totalTime=totalTime+dt
-        iterations=iterations+1
-        draw_str(vis, (20, 20), 'time: %.1f ms' % (dt*1000))
-        draw_str(vis, (20, 40), "Approved by KEITH, the friendly skull")
-        cv.imshow('facedetect', vis)
+                print('uploaded as', res.name.encode('utf8'))
+
+        draw_str(vis, (20, 20), "Approved by KEITH, the friendly skull")
+        cv.imshow('Reportface', vis)
 
         if cv.waitKey(5) == 27:
             break
     cv.destroyAllWindows()
     client.disconnect()
-    print("Average execution time: %.1f " % ((totalTime/iterations)*1000))
+
