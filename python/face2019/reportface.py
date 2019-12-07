@@ -12,6 +12,7 @@ from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
 from video import create_capture
 from common import clock, draw_str
+import requests
 
 def detect(img, cascade):
     rects = cascade.detectMultiScale(img, scaleFactor=1.3, minNeighbors=4, minSize=(30, 30),
@@ -33,11 +34,13 @@ if __name__ == '__main__':
     parser.add_argument('--topic', help="MQTT base topic path", default="/reportface/face/")
     parser.add_argument('--pause', type=int, help="Pause between captures in millis", default=0)
     parser.add_argument('--video_source', help="Camera index, file, or device", default="0")    
-    parser.add_argument('--token', help='Access token ')
+    parser.add_argument('--dropbox_token', help='Dropbox Access token ')
+    parser.add_argument('--pushover_token', help='Pushover Access token ')
+    parser.add_argument('--pushover_userkey', help='Pushover User Key ')
     options=parser.parse_args()
 
-    if not options.token:
-        print('--token is mandatory')
+    if not options.dropbox_token or not options.pushover_token or not options.pushover_userkey:
+        print('--tokens and keys are mandatory')
         sys.exit(2)
 
     try:
@@ -55,7 +58,7 @@ if __name__ == '__main__':
 
     cam = create_capture(video_src, fallback='synth:bg={}:noise=0.05'.format(cv.samples.findFile('lena.jpg')))
     
-    dbx = dropbox.Dropbox(options.token)
+    dbx = dropbox.Dropbox(options.dropbox_token)
     #initiate time variable so that we can get first face reported
     t_lastface= datetime.datetime(2009, 1, 6, 15, 8, 24, 0)
 
@@ -87,6 +90,15 @@ if __name__ == '__main__':
                     print('*** API error', err)
 
                 print('uploaded as', res.name.encode('utf8'))
+                
+                r = requests.post("https://api.pushover.net/1/messages.json", data = {
+                    "token": options.pushover_token,
+                    "user": options.pushover_userkey,
+                    "message": "Face at the door"
+                },
+                files = {
+                "attachment": ("image.jpg", open("/home/pi/face.jpg", "rb"), "image/jpeg")
+})
 
         draw_str(vis, (20, 20), "Simen Sommerfeldts door cam")
         cv.imshow('Reportface', vis)
