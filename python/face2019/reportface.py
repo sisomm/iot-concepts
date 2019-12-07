@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
                 print('uploaded as', res.name.encode('utf8'))
 
-        draw_str(vis, (20, 20), "Simen Sommerfeldt")
+        draw_str(vis, (20, 20), "Simen Sommerfeldts door cam")
         cv.imshow('Reportface', vis)
 
         if cv.waitKey(5) == 27:
