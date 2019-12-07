@@ -10,8 +10,6 @@ import paho.mqtt.client as paho
 import dropbox
 from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
-
-# local modules
 from video import create_capture
 from common import clock, draw_str
 
@@ -28,8 +26,6 @@ def draw_rects(img, rects, color):
         cv.rectangle(img, (x1, y1), (x2, y2), color, 2)
 
 if __name__ == '__main__':
-    TOKEN=''
-
     parser=argparse.ArgumentParser(prog="reportface.py")
     parser.add_argument('--cascade', help="Haar cascade file", default="haarcascade_frontalface_alt.xml")
     parser.add_argument('--nested_cascade', help="Inner Haar cascade file", default="haarcascade_eye.xml")
@@ -48,20 +44,14 @@ if __name__ == '__main__':
         video_src = int(options.video_source)
     except:
         video_src = options.video_source
-
-    cascade_fn = options.cascade
-    nested_fn  = options.nested_cascade
-    server = options.server
-    pause = options.pause
-
-    
+ 
     mypid = os.getpid()
     client = paho.Client("facedect_"+str(mypid))
-    client.connect(server)
+    client.connect(options.server)
     topic = options.topic
 
-    cascade = cv.CascadeClassifier(cv.samples.findFile(cascade_fn))
-    nested = cv.CascadeClassifier(cv.samples.findFile(nested_fn))
+    cascade = cv.CascadeClassifier(cv.samples.findFile(options.cascade))
+    nested = cv.CascadeClassifier(cv.samples.findFile(options.nested_cascade))
 
     cam = create_capture(video_src, fallback='synth:bg={}:noise=0.05'.format(cv.samples.findFile('lena.jpg')))
     
@@ -75,7 +65,7 @@ if __name__ == '__main__':
         gray = cv.equalizeHist(gray)
 
         #the sleep command eases the load
-        if pause > 0:
+        if options.pause > 0:
             time.sleep(pause/1000)
         rects = detect(gray, cascade)
         vis = img.copy()
