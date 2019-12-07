@@ -74,24 +74,13 @@ if __name__ == '__main__':
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         gray = cv.equalizeHist(gray)
 
-    #the sleep command eases the load
+        #the sleep command eases the load
         if pause > 0:
             time.sleep(pause/1000)
         rects = detect(gray, cascade)
         vis = img.copy()
         draw_rects(vis, rects, (0, 255, 0))
-        facenum=0
         
-        if not nested.empty():
-            for x1, y1, x2, y2 in rects:
-                roi = gray[y1:y2, x1:x2]
-                vis_roi = vis[y1:y2, x1:x2]
-                subrects = detect(roi.copy(), nested)
-                draw_rects(vis_roi, subrects, (255, 0, 0))
-                
-                midFaceX = int(x1+((x2-x1)/2))
-                midFaceY = int(y1+((y2-y1)/2))
-                facenum=facenum+1;
         if  len(rects)>0:
             t_thisface=datetime.datetime.now()
             minutes = (t_thisface-t_lastface).total_seconds() /60
@@ -109,7 +98,7 @@ if __name__ == '__main__':
 
                 print('uploaded as', res.name.encode('utf8'))
 
-        draw_str(vis, (20, 20), "Approved by KEITH, the friendly skull")
+        draw_str(vis, (20, 20), "Simen Sommerfeldt")
         cv.imshow('Reportface', vis)
 
         if cv.waitKey(5) == 27:
