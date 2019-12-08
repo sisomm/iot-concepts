@@ -81,6 +81,7 @@ if __name__ == '__main__':
             if minutes >= 1:
                 timestring=t_thisface.strftime("%Y%m%d_%H%M%S")
                 client.publish(topic,timestring)
+                draw_str(img, (20, 20), "Simen Sommerfeldts door cam")
                 print("Face at the door")
                 cv.imwrite("/home/pi/face.jpg",img)
                 f=open("/home/pi/face.jpg","rb")
@@ -88,17 +89,15 @@ if __name__ == '__main__':
                    res=dbx.files_upload(f.read(),"/face"+"_"+timestring+".jpg",mode=WriteMode("overwrite"))                  
                 except dropbox.exceptions.ApiError as err:
                     print('*** API error', err)
-
-                print('uploaded as', res.name.encode('utf8'))
                 
                 r = requests.post("https://api.pushover.net/1/messages.json", data = {
                     "token": options.pushover_token,
                     "user": options.pushover_userkey,
                     "message": "Face at the door"
                 },
-                files = {
-                "attachment": ("image.jpg", open("/home/pi/face.jpg", "rb"), "image/jpeg")
-})
+                    files = {
+                    "attachment": ("image.jpg", open("/home/pi/face.jpg", "rb"), "image/jpeg")
+                })
 
         draw_str(vis, (20, 20), "Simen Sommerfeldts door cam")
         cv.imshow('Reportface', vis)
