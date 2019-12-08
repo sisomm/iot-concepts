@@ -70,11 +70,11 @@ if __name__ == '__main__':
         #the sleep command eases the load
         if options.pause > 0:
             time.sleep(pause/1000)
-        rects = detect(gray, cascade)
+        faces = detect(gray, cascade)
         vis = img.copy()
-        draw_rects(vis, rects, (0, 255, 0))
+        draw_rects(vis, faces, (0, 255, 0))
         
-        if  len(rects)>0:
+        if  len(faces)>0:
             t_thisface=datetime.datetime.now()
             minutes = (t_thisface-t_lastface).total_seconds() /60
             t_lastface=t_thisface
