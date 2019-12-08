@@ -61,7 +61,7 @@ if __name__ == '__main__':
     dbx = dropbox.Dropbox(options.dropbox_token)
     #initiate time variable so that we can get first face reported
     t_lastface= datetime.datetime(2009, 1, 6, 15, 8, 24, 0)
-
+    sequencecounter=0
     while True:
         ret, img = cam.read()
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -78,26 +78,39 @@ if __name__ == '__main__':
             t_thisface=datetime.datetime.now()
             minutes = (t_thisface-t_lastface).total_seconds() /60
             t_lastface=t_thisface
-            if minutes >= 1:
-                timestring=t_thisface.strftime("%Y%m%d_%H%M%S")
-                client.publish(topic,timestring)
+            
+            #save five images to dropbox, but only one notification per minute
+            #print("Seqencecounter: "+str(sequencecounter))
+            if minutes >= 1 or sequencecounter>0:
+                
+                timestring=t_thisface.strftime("%Y%m%d_%H%M%S_%f")[:-3]+"_"+str(sequencecounter)
                 draw_str(img, (20, 20), "Simen Sommerfeldts door cam")
-                print("Face at the door")
+                
                 cv.imwrite("/home/pi/face.jpg",img)
                 f=open("/home/pi/face.jpg","rb")
                 try: 
                    res=dbx.files_upload(f.read(),"/face"+"_"+timestring+".jpg",mode=WriteMode("overwrite"))                  
                 except dropbox.exceptions.ApiError as err:
                     print('*** API error', err)
+  
+                print("Face at the door "+ timestring)
                 
-                r = requests.post("https://api.pushover.net/1/messages.json", data = {
-                    "token": options.pushover_token,
-                    "user": options.pushover_userkey,
-                    "message": "Face at the door"
-                },
-                files = {
-                    "attachment": ("image.jpg", open("/home/pi/face.jpg", "rb"), "image/jpeg")
-                })
+                if sequencecounter == 0 or minutes >=1: 
+
+                    client.publish(topic,timestring)
+                    r = requests.post("https://api.pushover.net/1/messages.json", data = {
+                        "token": options.pushover_token,
+                        "user": options.pushover_userkey,
+                        "message": "Face at the door"
+                    },
+                    files = {
+                        "attachment": ("image.jpg", open("/home/pi/face.jpg", "rb"), "image/jpeg")
+                    })
+                
+                if sequencecounter < 4:
+                    sequencecounter=sequencecounter+1
+                else:
+                    sequencecounter=0
 
         draw_str(vis, (20, 20), "Simen Sommerfeldts door cam")
         cv.imshow('Reportface', vis)
