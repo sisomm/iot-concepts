@@ -95,7 +95,7 @@ if __name__ == '__main__':
                     "user": options.pushover_userkey,
                     "message": "Face at the door"
                 },
-                    files = {
+                files = {
                     "attachment": ("image.jpg", open("/home/pi/face.jpg", "rb"), "image/jpeg")
                 })
 
