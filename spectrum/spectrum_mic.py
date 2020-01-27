@@ -7,8 +7,10 @@ from sense_hat import SenseHat
 #based on https://www.rototron.info/raspberry-pi-spectrum-analyzer/
 # Create BicolorMatrix display instance with default settings
 sense = SenseHat()
-
-spectrum  = [1,1,1,3,3,3,2,2]
+red = (255, 0, 0)
+green = (0, 255, 0)
+blue = (0, 0, 255)
+spectrum  = [red,red,red,green,green,green,blue,blue]
 matrix    = [0,0,0,0,0,0,0,0]
 power     = []
 weighting = [2,8,8,16,16,32,32,64] 
@@ -45,7 +47,6 @@ stream = p.open(format = pyaudio.paInt16,
                 frames_per_buffer = chunk,
                 input_device_index = device)
 
-
 # Return power array index corresponding to a particular frequency
 def piff(val):
     return int(2*chunk*val/sample_rate)
@@ -72,7 +73,7 @@ def calculate_levels(data, chunk,sample_rate):
     # Tidy up column values for the LED matrix
     matrix=np.divide(np.multiply(matrix,weighting),1000000)
     # Set floor at 0 and ceiling at 8 for LED matrix
-    matrix=matrix.clip(0,8)
+    matrix=matrix.clip(0,7)
     return matrix
 
 # Main loop
@@ -82,8 +83,8 @@ while 1:
         data = stream.read(chunk)
         matrix=calculate_levels(data, chunk,sample_rate)
         sense.clear()
-        for y in range (0,8):
-            for x in range(0, matrix[y]):
+        for y in range (0,7):
+            for x in range(0, int(matrix[y])):
                 sense.set_pixel(x, y, spectrum[x])
         
     except KeyboardInterrupt:
@@ -92,7 +93,7 @@ while 1:
         stream.close()
         p.terminate()
         sys.exit(1)
-    except Exception, e:
+    except Exception as e:
         print(e)
         print("ERROR Terminating...")
         stream.stop_stream()
