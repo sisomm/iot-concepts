@@ -73,7 +73,7 @@ def calculate_levels(data, chunk,sample_rate):
     # Tidy up column values for the LED matrix
     matrix=np.divide(np.multiply(matrix,weighting),1000000)
     # Set floor at 0 and ceiling at 8 for LED matrix
-    matrix=matrix.clip(0,7)
+    matrix=matrix.clip(0,8)
     return matrix
 
 # Main loop
