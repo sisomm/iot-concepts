@@ -4,8 +4,12 @@ from struct import unpack
 import numpy as np
 from sense_hat import SenseHat
 
+#Using a Sense hat as a light organ.
+
 #based on https://www.rototron.info/raspberry-pi-spectrum-analyzer/
-# Create BicolorMatrix display instance with default settings
+#(c) Simen Sommerfeldt, license: CC BY-SA 4.0
+
+# Create Sense hat display instance with default settings
 sense = SenseHat()
 red = (255, 0, 0)
 green = (0, 255, 0)
