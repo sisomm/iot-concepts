@@ -30,12 +30,27 @@
         "id": "8dab8d866eebd975",
         "type": "junction",
         "z": "9040230c.6fbfe",
-        "x": 339,
-        "y": 319,
+        "x": 320,
+        "y": 320,
         "wires": [
             [
                 "7046b819.8fb948",
-                "ec568108.13a98"
+                "ec568108.13a98",
+                "41e795b6a01eff37"
+            ]
+        ]
+    },
+    {
+        "id": "432beb9b50a32934",
+        "type": "junction",
+        "z": "9040230c.6fbfe",
+        "x": 660,
+        "y": 560,
+        "wires": [
+            [
+                "efcaa2f2.dce43",
+                "1bfd51b8.e402ae",
+                "f2d745ae.f2dab8"
             ]
         ]
     },
@@ -43,43 +58,67 @@
         "id": "af380220.50c8",
         "type": "mqtt-broker",
         "z": "9040230c.6fbfe",
-        "broker": "192.168.1.30",
+        "name": "",
+        "broker": "localhost",
         "port": "1883",
+        "tls": "73a6bd7b750543f6",
         "clientid": "",
-        "usetls": false,
+        "autoConnect": true,
+        "usetls": true,
         "verifyservercert": true,
-        "compatmode": true,
+        "protocolVersion": "4",
         "keepalive": "60",
         "cleansession": true,
         "birthTopic": "",
         "birthQos": "0",
-        "birthRetain": null,
+        "birthRetain": "false",
         "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
         "willTopic": "",
         "willQos": "0",
-        "willRetain": null,
-        "willPayload": ""
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
     },
     {
         "id": "3a4d13cf.e1e27c",
         "type": "mqtt-broker",
         "z": "9040230c.6fbfe",
+        "name": "",
         "broker": "localhost",
-        "port": "1883",
+        "port": "8883",
+        "tls": "954a8ddd0322bfcf",
         "clientid": "",
-        "usetls": false,
+        "autoConnect": true,
+        "usetls": true,
         "verifyservercert": true,
-        "compatmode": true,
+        "protocolVersion": "4",
         "keepalive": "60",
         "cleansession": true,
         "birthTopic": "",
         "birthQos": "0",
-        "birthRetain": null,
+        "birthRetain": "false",
         "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
         "willTopic": "",
         "willQos": "0",
-        "willRetain": null,
-        "willPayload": ""
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
     },
     {
         "id": "265a5782.1bf7a8",
@@ -270,6 +309,34 @@
         "className": ""
     },
     {
+        "id": "954a8ddd0322bfcf",
+        "type": "tls-config",
+        "name": "",
+        "cert": "/home/pi//.node-red/certs/client.crt",
+        "key": "/home/pi//.node-red/certs/client.key",
+        "ca": "/etc/mosquitto/certs/ca.crt",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    },
+    {
+        "id": "73a6bd7b750543f6",
+        "type": "tls-config",
+        "name": "",
+        "cert": "/etc/mosquitto/certs/ca.crt",
+        "key": "/etc/mosquitto/certs/server.key",
+        "ca": "/etc/mosquitto/certs/ca.crt",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    },
+    {
         "id": "a4fe522b.5b01b",
         "type": "mqtt out",
         "z": "9040230c.6fbfe",
@@ -390,7 +457,10 @@
         "name": "control skull",
         "func": "var    servoXMin=200; //  The commented numbers are for the old pan/tilt set\nvar    servoXMax=520; // \nvar    servoXMid=330; // 360\nvar    servoYMin=235; //\nvar     servoYMax=520; //\nvar    servoYMid=300; // 320\n\nvar increment=2;\n\nif(msg.payload.key==\"ENTER\"){\n    msg.payload=\"JAW_MOTION, 1, 1\"; \n    return msg;\n}\n\nvar SX=(flow.get(\"SX\"))||servoXMid;\nvar SY=(flow.get(\"SY\"))||servoYMid;\n\nif(msg.payload.key==\"LEFT\" && (SX>servoXMin)){\n    SX=SX-increment;\n}\n\nif(msg.payload.key==\"RIGHT\" && (SX<servoXMax)){\n    SX=SX+increment;\n}\nif(msg.payload.key==\"UP\" && (SY>servoYMin)){\n    SY=SY-increment;\n}\nif(msg.payload.key==\"DOWN\" && (SY<servoYMax)){\n    SY=SY+increment;\n}\n\nflow.set(\"SX\",SX);\nflow.set(\"SY\",SY);\n\nvar msg1 = { payload:util.format(\"SERVOS_MOVE,%d,%d,7\",SX,SY) };\n\nreturn msg1;\n",
         "outputs": 1,
-        "noerr": 0,
+        "noerr": 1,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
         "x": 521.5,
         "y": 308,
         "wires": [
@@ -407,6 +477,11 @@
         "topic": "/sensehat/1/status",
         "qos": "",
         "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
         "broker": "3a4d13cf.e1e27c",
         "x": 273,
         "y": 215,
@@ -672,9 +747,7 @@
         "y": 615,
         "wires": [
             [
-                "efcaa2f2.dce43",
-                "1bfd51b8.e402ae",
-                "f2d745ae.f2dab8"
+                "432beb9b50a32934"
             ]
         ]
     },
@@ -790,6 +863,19 @@
                 "4daa790e.63ff78"
             ]
         ]
+    },
+    {
+        "id": "41e795b6a01eff37",
+        "type": "link out",
+        "z": "9040230c.6fbfe",
+        "name": "joystick",
+        "mode": "link",
+        "links": [
+            "34eeeada7c12d2cb"
+        ],
+        "x": 445,
+        "y": 260,
+        "wires": []
     },
     {
         "id": "4ef7c1cc.b1c33",
@@ -1879,7 +1965,7 @@
         "type": "ui_text_input",
         "z": "8a739df2b6401692",
         "name": "",
-        "label": "",
+        "label": "Text to scroll",
         "tooltip": "",
         "group": "2305c608.0f62fa",
         "order": 0,
@@ -1892,7 +1978,7 @@
         "sendOnBlur": true,
         "className": "",
         "topicType": "str",
-        "x": 182.3999786376953,
+        "x": 192.3999786376953,
         "y": 794.5999755859375,
         "wires": [
             [
@@ -1905,8 +1991,8 @@
         "type": "function",
         "z": "8a739df2b6401692",
         "name": "test",
-        "func": "var sensor = msg.payload;\nvar msg1 = {payload:sensor.temperature};\nvar msg2 = {payload:sensor.humidity};\nvar msg3 = {payload:sensor.pressure};\nreturn[msg1,msg2,msg3];",
-        "outputs": "3",
+        "func": "var sensor = msg.payload;\nvar msg1 = {payload:sensor.temperature};\nvar msg2 = {payload:sensor.humidity};\nvar msg3 = {payload:sensor.pressure};\n\nreturn[msg1,msg2,msg3];",
+        "outputs": 3,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -1930,6 +2016,7 @@
         ],
         "outputLabels": [
             "humidity",
+            "",
             "",
             ""
         ]
@@ -2053,6 +2140,39 @@
         "wires": [
             [
                 "65d18d6e.ba2e9c"
+            ]
+        ]
+    },
+    {
+        "id": "e1a955e14ae7940d",
+        "type": "ui_text",
+        "z": "8a739df2b6401692",
+        "group": "2305c608.0f62fa",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Joystick",
+        "format": "{{msg.payload.key}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 680,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "34eeeada7c12d2cb",
+        "type": "link in",
+        "z": "8a739df2b6401692",
+        "name": "link in 2",
+        "links": [
+            "41e795b6a01eff37"
+        ],
+        "x": 505,
+        "y": 660,
+        "wires": [
+            [
+                "e1a955e14ae7940d"
             ]
         ]
     }
