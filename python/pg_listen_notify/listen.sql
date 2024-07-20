@@ -5,8 +5,12 @@ CREATE TABLE users (
 );
 
 CREATE OR REPLACE FUNCTION notify_new_user() RETURNS trigger AS $$
+DECLARE
+  payload TEXT;
 BEGIN
-  PERFORM pg_notify('users_notification', NEW.username::text);
+/*  PERFORM pg_notify('users_notification', NEW.username::text); */
+  payload := json_build_object('timestamp',CURRENT_TIMESTAMP,'action',LOWER(TG_OP),'schema',TG_TABLE_SCHEMA,'identity',TG_TABLE_NAME,'record',row_to_json(NEW));
+  PERFORM pg_notify('users_notification', payload); 
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
