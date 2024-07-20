@@ -18,7 +18,7 @@ client=paho.Client("postgres"+str(mypid))
 client.connect("localhost")
 
 cursor = connection.cursor()
-cursor.execute("LISTEN users_notification;")
+cursor.execute("LISTEN notification;")
 
 while True:
     if select.select([connection],[],[],5) == ([],[],[]):
